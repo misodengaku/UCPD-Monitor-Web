@@ -41,6 +41,7 @@
   text-transform: uppercase;
   transition: background 0.15s, color 0.15s;
 }
+
 .resetBtn:hover {
   background: #0e1a0e;
   color: #6ecf6e;
@@ -54,6 +55,17 @@
   overflow: hidden;
 }
 
+/* レスポンシブ対応: スマホ用のボディ */
+@media (max-width: 768px) {
+  .body {
+    flex-direction: column;
+    overflow-x: auto;
+    overflow-y: auto;
+    /* スワイプ可能にするための設定 */
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
 /* Horizontal resize bar between body and message table */
 .heightResizeBar {
   height: 5px;
@@ -64,6 +76,7 @@
   z-index: 10;
   transition: background 0.15s;
 }
+
 .heightResizeBar:hover,
 .heightResizeBar.dragging {
   background: #1a3a1a;
@@ -81,10 +94,19 @@
   scrollbar-color: #1a2a1a transparent;
   position: relative;
 }
+
+/* レスポンシブ対応: スマホ用のサイドパネル */
+@media (max-width: 768px) {
+  .sidePanel {
+    width: 150px;
+  }
+}
+
 .sidePanel:last-child {
   border-right: none;
   border-left: none;
 }
+
 .sidePanel:nth-child(3) {
   border-left: none;
 }
@@ -98,7 +120,10 @@
   transition: background 0.15s;
   align-self: stretch;
 }
-.panelSep:hover { background: #1a3a1a; }
+
+.panelSep:hover {
+  background: #1a3a1a;
+}
 
 .panelTitle {
   font-size: 8px;
@@ -122,8 +147,22 @@
   white-space: nowrap;
   overflow: hidden;
 }
-.propRowClickable { cursor: pointer; }
-.propRowClickable:hover { background: #0a130a; }
+
+/* レスポンシブ対応: スマホ用のプロパティ行 */
+@media (max-width: 768px) {
+  .propRow {
+    font-size: 10px;
+    padding: 1px 2px;
+  }
+}
+
+.propRowClickable {
+  cursor: pointer;
+}
+
+.propRowClickable:hover {
+  background: #0a130a;
+}
 
 .propToggle {
   width: 12px;
@@ -133,9 +172,24 @@
   text-align: center;
   margin-right: 2px;
 }
-.propKey   { color: #3a5a3a; flex-shrink: 0; }
-.propSep   { color: #1e2e1e; margin: 0 2px; flex-shrink: 0; }
-.propValue { color: #7eba7e; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+
+.propKey {
+  color: #3a5a3a;
+  flex-shrink: 0;
+}
+
+.propSep {
+  color: #1e2e1e;
+  margin: 0 2px;
+  flex-shrink: 0;
+}
+
+.propValue {
+  color: #7eba7e;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
 
 /* ── Center area ────────────────────────────────────────────── */
 .center {
@@ -150,11 +204,38 @@
   background: radial-gradient(ellipse at center, #080f08 0%, #050805 100%);
 }
 
+/* レスポンシブ対応: スマホ用の中央エリア */
+@media (max-width: 768px) {
+  .center {
+    padding: 4px 6px;
+    gap: 4px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* レスポンシブ対応: スマホ用の中央エリア */
+@media (max-width: 768px) {
+  .center {
+    padding: 4px 6px;
+    gap: 4px;
+  }
+}
+
 .chain {
   display: flex;
   align-items: flex-start;
   justify-content: center;
   width: 100%;
+}
+
+/* レスポンシブ対応: スマホ用のチェイン表示 */
+@media (max-width: 768px) {
+  .chain {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
 }
 
 /* ── Node boxes ─────────────────────────────────────────────── */
@@ -168,6 +249,14 @@
   transition: border-color 0.3s, box-shadow 0.3s;
   background: #070d07;
   position: relative;
+}
+
+/* レスポンシブ対応: スマホ用のノードボックス */
+@media (max-width: 768px) {
+  .node {
+    min-width: 280px;
+    padding: 4px 6px;
+  }
 }
 
 /* SINK with RDO only (no SNK_CAP) */
@@ -189,19 +278,19 @@
 .nodeActive {
   border-color: #1a3a1a;
   background: #070d07;
-  box-shadow: 0 0 8px rgba(50,160,50,0.07), inset 0 0 10px rgba(0,40,0,0.4);
+  box-shadow: 0 0 8px rgba(50, 160, 50, 0.07), inset 0 0 10px rgba(0, 40, 0, 0.4);
 }
 
 .nodeContract {
   border-color: #1a5a1a;
   background: #060c06;
-  box-shadow: 0 0 12px rgba(30,200,60,0.18), inset 0 0 14px rgba(0,60,10,0.3);
+  box-shadow: 0 0 12px rgba(30, 200, 60, 0.18), inset 0 0 14px rgba(0, 60, 10, 0.3);
 }
 
 .nodeEPR {
   border-color: #7a4a00;
   background: #0e0800;
-  box-shadow: 0 0 12px rgba(255,160,0,0.22), inset 0 0 12px rgba(60,20,0,0.35);
+  box-shadow: 0 0 12px rgba(255, 160, 0, 0.22), inset 0 0 12px rgba(60, 20, 0, 0.35);
 }
 
 .nodeHeader {
@@ -258,7 +347,7 @@
   border: 1px solid #0a140a;
   border-radius: 2px;
   padding: 5px 14px;
-  box-shadow: inset 0 1px 4px rgba(0,0,0,0.6);
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.6);
 }
 
 .meterRow {
@@ -349,6 +438,7 @@
   color: #1a2a1a;
   border-color: #0d1a0d;
 }
+
 .eprLampDim .eprLampDot {
   background: #0d1a0d;
 }
@@ -356,11 +446,12 @@
 .eprLampLit {
   color: #ffaa00;
   border-color: #6a4a00;
-  text-shadow: 0 0 6px rgba(255,170,0,0.7);
+  text-shadow: 0 0 6px rgba(255, 170, 0, 0.7);
 }
+
 .eprLampLit .eprLampDot {
   background: #ffaa00;
-  box-shadow: 0 0 4px #ffaa00, 0 0 8px rgba(255,170,0,0.5);
+  box-shadow: 0 0 4px #ffaa00, 0 0 8px rgba(255, 170, 0, 0.5);
 }
 
 /* ── LED status dot ─────────────────────────────────────────── */
@@ -370,10 +461,26 @@
   border-radius: 50%;
   flex-shrink: 0;
 }
-.dotGray   { background: #1a2a1a; box-shadow: none; }
-.dotGreen  { background: #33dd33; box-shadow: 0 0 4px #33dd33, 0 0 10px rgba(51,221,51,0.5); }
-.dotBlue   { background: #00e0ff; box-shadow: 0 0 4px #00e0ff, 0 0 10px rgba(0,224,255,0.4); }
-.dotOrange { background: #ffaa00; box-shadow: 0 0 4px #ffaa00, 0 0 10px rgba(255,170,0,0.5); }
+
+.dotGray {
+  background: #1a2a1a;
+  box-shadow: none;
+}
+
+.dotGreen {
+  background: #33dd33;
+  box-shadow: 0 0 4px #33dd33, 0 0 10px rgba(51, 221, 51, 0.5);
+}
+
+.dotBlue {
+  background: #00e0ff;
+  box-shadow: 0 0 4px #00e0ff, 0 0 10px rgba(0, 224, 255, 0.4);
+}
+
+.dotOrange {
+  background: #ffaa00;
+  box-shadow: 0 0 4px #ffaa00, 0 0 10px rgba(255, 170, 0, 0.5);
+}
 
 /* ── Cable + eMarker unified track ───────────────────────────── */
 .cableChain {
@@ -386,6 +493,13 @@
   min-height: 40px;
 }
 
+/* レスポンシブ対応: スマホ用のケーブルチェイン */
+@media (max-width: 768px) {
+  .cableChain {
+    min-height: 20px;
+  }
+}
+
 .cableTrack {
   position: absolute;
   left: 0;
@@ -396,18 +510,31 @@
   transition: background 0.4s, box-shadow 0.4s;
 }
 
-.cableInactive { background: #0a140a; }
+/* レスポンシブ対応: スマホ用のケーブルトラック */
+@media (max-width: 768px) {
+  .cableTrack {
+    top: 18px;
+    height: 3px;
+  }
+}
+
+.cableInactive {
+  background: #0a140a;
+}
+
 .cableActive {
   background: linear-gradient(to right, #1a4a1a, #33dd33, #1a4a1a);
-  box-shadow: 0 0 5px rgba(51,221,51,0.35);
+  box-shadow: 0 0 5px rgba(51, 221, 51, 0.35);
 }
+
 .cableContract {
   background: linear-gradient(to right, #00501a, #00ff60, #00501a);
-  box-shadow: 0 0 6px rgba(0,255,96,0.4);
+  box-shadow: 0 0 6px rgba(0, 255, 96, 0.4);
 }
+
 .cableEPR {
   background: linear-gradient(to right, #503000, #ffaa00, #503000);
-  box-shadow: 0 0 6px rgba(255,170,0,0.4);
+  box-shadow: 0 0 6px rgba(255, 170, 0, 0.4);
 }
 
 /* ── eMarker box ─────────────────────────────────────────────── */
@@ -422,9 +549,10 @@
   background: #060b06;
   transition: border-color 0.3s, box-shadow 0.3s;
 }
+
 .eMarkerActive {
   border-color: #2a7a2a;
-  box-shadow: 0 0 8px rgba(51,221,51,0.25);
+  box-shadow: 0 0 8px rgba(51, 221, 51, 0.25);
 }
 
 .eMarkerTitle {
@@ -435,6 +563,7 @@
   margin-bottom: 3px;
   font-family: 'Consolas', 'Menlo', monospace;
 }
+
 .eMarkerSops {
   font-size: 9px;
   font-family: 'Consolas', 'Menlo', monospace;
@@ -445,7 +574,10 @@
   letter-spacing: 0.5px;
   margin-bottom: 4px;
 }
-.eMarkerSep { color: #2a6a2a; }
+
+.eMarkerSep {
+  color: #2a6a2a;
+}
 
 /* ── Contract values inside eMarker ─────────────────────────── */
 .contractIn {
@@ -511,7 +643,7 @@
   border: 1px solid #0a140a;
   border-radius: 2px;
   padding: 2px 0;
-  box-shadow: inset 0 1px 4px rgba(0,0,0,0.6);
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.6);
   max-height: 340px;
   overflow-y: auto;
   scrollbar-width: thin;
@@ -554,7 +686,7 @@
   background: #05200a;
   outline: 1px solid #2db52d;
   outline-offset: -1px;
-  box-shadow: 0 0 10px rgba(45,181,45,0.35), inset 0 0 8px rgba(0,80,10,0.4);
+  box-shadow: 0 0 10px rgba(45, 181, 45, 0.35), inset 0 0 8px rgba(0, 80, 10, 0.4);
 }
 
 .capIdx {
@@ -590,8 +722,14 @@
 }
 
 /* legacy aliases kept for safety */
-.capBadge  { font-size: 9px; font-weight: 700; }
-.capRange  { color: #7eba7e; }
+.capBadge {
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.capRange {
+  color: #7eba7e;
+}
 
 /* ── RDO row inside sink cap list (legacy, kept for SOURCE) ─── */
 .rdoRow {
@@ -602,6 +740,7 @@
   border-top: 1px solid #0a1a0a;
   margin-top: 1px;
 }
+
 .rdoLabel {
   color: #90caf9;
   font-size: 8px;
@@ -610,6 +749,7 @@
   flex-shrink: 0;
   font-weight: 700;
 }
+
 .rdoValue {
   color: #90caf9;
   font-size: 10px;
@@ -854,5 +994,3 @@
   margin-left: 4px;
   vertical-align: middle;
 }
-
-

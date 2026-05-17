@@ -3,13 +3,13 @@
 import { useCallback, useState } from 'react';
 import { useStaticData } from './hooks/useStaticData';
 import { useCpdImport } from './hooks/useCpdImport';
-import { useAppStore }  from './store/appStore';
+import { useAppStore } from './store/appStore';
 const useSerialConnected = () => useAppStore((s) => s.serialStatus.connected);
-import TopologyView     from './components/TopologyView';
-import MessageTable     from './components/MessageTable';
-import Console          from './components/Console';
-import SerialBar        from './components/SerialBar';
-import styles           from './App.module.css';
+import TopologyView from './components/TopologyView';
+import MessageTable from './components/MessageTable';
+import Console from './components/Console';
+import SerialBar from './components/SerialBar';
+import styles from './App.module.css';
 
 
 function ImportBadge() {
@@ -29,12 +29,13 @@ function ImportBadge() {
 }
 
 export default function App() {
-  const { sendPing, sendMessage }       = useStaticData();
+  const { sendPing, sendMessage } = useStaticData();
   const { openLogsFilePicker, openImportFilePicker, importFiles } = useCpdImport();
-  const serialConnected                 = useSerialConnected();
-  const [dragging, setDragging]     = useState(false);
+  const serialConnected = useSerialConnected();
+  const [dragging, setDragging] = useState(false);
   const [showTopology, setShowTopology] = useState(true);
-  const [showConsole,  setShowConsole]  = useState(false);
+  const [showConsole, setShowConsole] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   const onDragOver = useCallback((e) => {
     e.preventDefault();
@@ -80,30 +81,70 @@ export default function App() {
           <span className={styles.titleVersion}>v{import.meta.env.VITE_APP_VERSION}</span>
         </span>
         <ImportBadge />
-        <button
-          onClick={openLogsFilePicker}
-          className={styles.importBtn}
-          disabled={serialConnected}
-          title={serialConnected ? 'Disconnect DISCO before importing a .cpd file' : 'Open from logs folder'}
-        >.cpd Open</button>
-        <button
-          onClick={openImportFilePicker}
-          className={styles.importBtn}
-          disabled={serialConnected}
-          title={serialConnected ? 'Disconnect DISCO before importing a .cpd file' : 'Import from last used folder'}
-        >.cpd Import</button>
-        <button onClick={sendPing} className={styles.pingBtn} style={{ display: 'none' }}>Ping</button>
-        <button
-          className={`${styles.panelToggleBtn} ${showTopology ? styles.panelToggleActive : ''}`}
-          onClick={() => setShowTopology((v) => !v)}
-          title="Toggle Connection View panel"
-        >Connection View</button>
-        <button
-          className={`${styles.panelToggleBtn} ${showConsole ? styles.panelToggleActive : ''}`}
-          onClick={() => setShowConsole((v) => !v)}
-          title="Toggle Console panel"
-        >Console</button>
-        <SerialBar sendMessage={sendMessage} />
+
+        {/* デスクトップ表示用コントロール */}
+        <div className={styles.desktopControls}>
+          <button
+            onClick={openLogsFilePicker}
+            className={styles.importBtn}
+            disabled={serialConnected}
+            title={serialConnected ? 'Disconnect DISCO before importing a .cpd file' : 'Open from logs folder'}
+          >.cpd Open</button>
+          <button
+            onClick={openImportFilePicker}
+            className={styles.importBtn}
+            disabled={serialConnected}
+            title={serialConnected ? 'Disconnect DISCO before importing a .cpd file' : 'Import from last used folder'}
+          >.cpd Import</button>
+          <button onClick={sendPing} className={styles.pingBtn} style={{ display: 'none' }}>Ping</button>
+          <button
+            className={`${styles.panelToggleBtn} ${showTopology ? styles.panelToggleActive : ''}`}
+            onClick={() => setShowTopology((v) => !v)}
+            title="Toggle Connection View panel"
+          >Connection View</button>
+          <button
+            className={`${styles.panelToggleBtn} ${showConsole ? styles.panelToggleActive : ''}`}
+            onClick={() => setShowConsole((v) => !v)}
+            title="Toggle Console panel"
+          >Console</button>
+          <SerialBar sendMessage={sendMessage} />
+        </div>
+
+        {/* モバイル表示用ハンバーガーメニュー */}
+        <div className={styles.hamburgerMenu}>
+          <button
+            className={styles.hamburgerButton}
+            onClick={() => setShowMobileMenu(!showMobileMenu)}
+          >☰</button>
+          <div className={`${styles.menuContent} ${showMobileMenu ? styles.show : ''}`}>
+            <button
+              onClick={openLogsFilePicker}
+              className={styles.menuItem}
+              disabled={serialConnected}
+              title={serialConnected ? 'Disconnect DISCO before importing a .cpd file' : 'Open from logs folder'}
+            >.cpd Open</button>
+            <button
+              onClick={openImportFilePicker}
+              className={styles.menuItem}
+              disabled={serialConnected}
+              title={serialConnected ? 'Disconnect DISCO before importing a .cpd file' : 'Import from last used folder'}
+            >.cpd Import</button>
+            <button onClick={sendPing} className={styles.menuItem} style={{ display: 'none' }}>Ping</button>
+            <div className={styles.menuSeparator}></div>
+            <button
+              className={`${styles.menuItem} ${showTopology ? styles.panelToggleActive : ''}`}
+              onClick={() => setShowTopology((v) => !v)}
+              title="Toggle Connection View panel"
+            >Connection View</button>
+            <button
+              className={`${styles.menuItem} ${showConsole ? styles.panelToggleActive : ''}`}
+              onClick={() => setShowConsole((v) => !v)}
+              title="Toggle Console panel"
+            >Console</button>
+            <div className={styles.menuSeparator}></div>
+            <SerialBar sendMessage={sendMessage} />
+          </div>
+        </div>
       </header>
 
       {/* Connection View strip */}

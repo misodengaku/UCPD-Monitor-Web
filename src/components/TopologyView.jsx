@@ -41,7 +41,7 @@ const USB_VID_VENDORS = {
   0x2717: 'Xiaomi',
   0x2E04: 'Huawei',
   0x291A: 'Anker Innovations',
-  
+
   0x2FE6: 'Zhuhai iSmartWare Technology',
   0x3434: 'Keychron',
   0x3438: 'ATEN',
@@ -74,11 +74,11 @@ function extractVidHex(s) {
   return m ? m[1].toUpperCase() : (s ?? '').toUpperCase();
 }
 const PDO_COLORS = {
-  'Fixed':    '#80deea',
-  'Battery':  '#ffcc80',
+  'Fixed': '#80deea',
+  'Battery': '#ffcc80',
   'Variable': '#b39ddb',
   'APDO_PPS': '#a5d6a7',
-  'APDO_AVS':     '#f48fb1',
+  'APDO_AVS': '#f48fb1',
   'APDO_SPR_AVS': '#ce93d8',
 };
 
@@ -87,18 +87,18 @@ function pdoLabel(pdo) {
   // Use pdo.label if available (already formatted by parser)
   if (pdo.label) return pdo.label;
   switch (pdo.pdoType) {
-    case 'Fixed':    return `${pdo.vMv/1000}V / ${(pdo.iMa/1000).toFixed(2)}A`;
-    case 'Battery':  return `${pdo.vMinMv/1000}–${pdo.vMaxMv/1000}V / ${(pdo.wMax/1000).toFixed(0)}W`;
-    case 'Variable': return `${pdo.vMinMv/1000}–${pdo.vMaxMv/1000}V / ${(pdo.iMa/1000).toFixed(2)}A`;
-    case 'APDO_PPS': return `${pdo.vMinMv/1000}–${pdo.vMaxMv/1000}V / ${(pdo.iMa/1000).toFixed(2)}A`;
-    case 'APDO_AVS':     return `${pdo.vMinMv/1000}–${pdo.vMaxMv/1000}V / ${pdo.pdpW}W`;
+    case 'Fixed': return `${pdo.vMv / 1000}V / ${(pdo.iMa / 1000).toFixed(2)}A`;
+    case 'Battery': return `${pdo.vMinMv / 1000}–${pdo.vMaxMv / 1000}V / ${(pdo.wMax / 1000).toFixed(0)}W`;
+    case 'Variable': return `${pdo.vMinMv / 1000}–${pdo.vMaxMv / 1000}V / ${(pdo.iMa / 1000).toFixed(2)}A`;
+    case 'APDO_PPS': return `${pdo.vMinMv / 1000}–${pdo.vMaxMv / 1000}V / ${(pdo.iMa / 1000).toFixed(2)}A`;
+    case 'APDO_AVS': return `${pdo.vMinMv / 1000}–${pdo.vMaxMv / 1000}V / ${pdo.pdpW}W`;
     case 'APDO_SPR_AVS': {
       const sfx = pdo.iMa_15_20 > 0
-        ? `${(pdo.iMa_9_15/1000).toFixed(2)}A (9–15V) / ${(pdo.iMa_15_20/1000).toFixed(2)}A (15–20V)`
-        : `${(pdo.iMa_9_15/1000).toFixed(2)}A (9–15V)`;
-      return `${pdo.vMinMv/1000}–${pdo.vMaxMv/1000}V / ${sfx}`;
+        ? `${(pdo.iMa_9_15 / 1000).toFixed(2)}A (9–15V) / ${(pdo.iMa_15_20 / 1000).toFixed(2)}A (15–20V)`
+        : `${(pdo.iMa_9_15 / 1000).toFixed(2)}A (9–15V)`;
+      return `${pdo.vMinMv / 1000}–${pdo.vMaxMv / 1000}V / ${sfx}`;
     }
-    default:             return pdo.raw ?? '—';
+    default: return pdo.raw ?? '—';
   }
 }
 
@@ -106,8 +106,8 @@ function pdoBadge(pdo) {
   if (!pdo) return '';
   return pdo.pdoType === 'APDO_PPS' ? 'PPS'
     : pdo.pdoType === 'APDO_AVS' ? 'AVS'
-    : pdo.pdoType === 'APDO_SPR_AVS' ? 'SPR-AVS'
-    : pdo.pdoType;
+      : pdo.pdoType === 'APDO_SPR_AVS' ? 'SPR-AVS'
+        : pdo.pdoType;
 }
 
 // Compact one-line capability range (used in node cap list)
@@ -135,8 +135,8 @@ function pdoRangeStr(pdo) {
 
 function contractVoltStr(pdo) {
   if (!pdo) return '—';
-  if (pdo.pdoType === 'Fixed')    return `${(pdo.vMv / 1000).toFixed(1)} V`;
-  if (pdo.vMinMv != null)         return `${(pdo.vMinMv / 1000).toFixed(1)}–${(pdo.vMaxMv / 1000).toFixed(1)} V`;
+  if (pdo.pdoType === 'Fixed') return `${(pdo.vMv / 1000).toFixed(1)} V`;
+  if (pdo.vMinMv != null) return `${(pdo.vMinMv / 1000).toFixed(1)}–${(pdo.vMaxMv / 1000).toFixed(1)} V`;
   return '—';
 }
 
@@ -184,9 +184,9 @@ function buildSourceItems(source) {
 
   if (source.contract) {
     const { pdo, objPos, opVoltage_mV, opCurrent_mA, maxCurrent_mA,
-            opPower_mW, limPower_mW, giveBack, capMismatch, rdoType } = source.contract;
+      opPower_mW, limPower_mW, giveBack, capMismatch, rdoType } = source.contract;
     const isAdjustable = rdoType === 'PPS' || rdoType === 'AVS';
-    const isBattery    = rdoType === 'Battery';
+    const isBattery = rdoType === 'Battery';
     const voltStr = opVoltage_mV != null
       ? `${(opVoltage_mV / 1000).toFixed(2)} V`   // negotiated output voltage (PPS/AVS)
       : contractVoltStr(pdo);
@@ -199,28 +199,28 @@ function buildSourceItems(source) {
       color: source.eprActive ? '#ffb74d' : '#4caf50',
       autoExpand: true,
       children: [
-        { key: 'PDO Type',    value: pdo ? pdoBadge(pdo) : '—', color: PDO_COLORS[pdo?.pdoType] },
-        { key: 'PDO',         value: pdoLabel(pdo), color: PDO_COLORS[pdo?.pdoType] },
+        { key: 'PDO Type', value: pdo ? pdoBadge(pdo) : '—', color: PDO_COLORS[pdo?.pdoType] },
+        { key: 'PDO', value: pdoLabel(pdo), color: PDO_COLORS[pdo?.pdoType] },
         ...(isAdjustable
           ? [
-              { key: 'PDO Range',    value: contractVoltStr(pdo) },
-              { key: 'Out Voltage',  value: `${(opVoltage_mV / 1000).toFixed(2)} V`, color: '#a5d6a7' },
-            ]
+            { key: 'PDO Range', value: contractVoltStr(pdo) },
+            { key: 'Out Voltage', value: `${(opVoltage_mV / 1000).toFixed(2)} V`, color: '#a5d6a7' },
+          ]
           : [
-              { key: 'Voltage',      value: voltStr },
-            ]
+            { key: 'Voltage', value: voltStr },
+          ]
         ),
         ...(isBattery
           ? [
-              { key: 'Op Power',  value: `${(opPower_mW / 1000).toFixed(2)} W` },
-              { key: `${giveBack ? 'Min' : 'Max'} Power`, value: `${(limPower_mW / 1000).toFixed(2)} W` },
-            ]
+            { key: 'Op Power', value: `${(opPower_mW / 1000).toFixed(2)} W` },
+            { key: `${giveBack ? 'Min' : 'Max'} Power`, value: `${(limPower_mW / 1000).toFixed(2)} W` },
+          ]
           : [
-              { key: 'Op Current',  value: `${(opCurrent_mA / 1000).toFixed(2)} A` },
-              ...(!isAdjustable && maxCurrent_mA != null
-                ? [{ key: 'Max Current', value: `${(maxCurrent_mA / 1000).toFixed(2)} A` }]
-                : []),
-            ]
+            { key: 'Op Current', value: `${(opCurrent_mA / 1000).toFixed(2)} A` },
+            ...(!isAdjustable && maxCurrent_mA != null
+              ? [{ key: 'Max Current', value: `${(maxCurrent_mA / 1000).toFixed(2)} A` }]
+              : []),
+          ]
         ),
         ...(giveBack ? [{ key: 'GiveBack', value: '', color: '#90caf9' }] : []),
         ...(capMismatch ? [{ key: '⚠ CapMismatch', value: '', color: '#ff9800' }] : []),
@@ -256,9 +256,9 @@ function buildSourceItems(source) {
     const mismatch = scdbVid && extractVidHex(scdbVid) !== extractVidHex(vid);
     const children = [
       { key: 'VID', value: vendor ? `${vid}  ${vendor}` : vid },
-      ...(pid      ? [{ key: 'PID',      value: pid }]      : []),
+      ...(pid ? [{ key: 'PID', value: pid }] : []),
       ...(bcdDevice ? [{ key: 'bcdDevice', value: bcdDevice }] : []),
-      ...(xid      ? [{ key: 'XID',      value: xid }]      : []),
+      ...(xid ? [{ key: 'XID', value: xid }] : []),
       ...(mismatch ? [{ key: '⚠ VID mismatch', value: `SCDB:${scdbVid}  vs  discId:${vid}`, color: '#ff9800' }] : []),
     ];
     items.push({
@@ -310,8 +310,8 @@ function buildSinkItems(sink) {
 
   if (sink.lastRequest) {
     const { objPos, opVoltage_mV, opCurrent_mA, maxCurrent_mA,
-            opPower_mW, limPower_mW, giveBack, capMismatch, rdoType } = sink.lastRequest;
-    const isAdj    = rdoType === 'PPS' || rdoType === 'AVS';
+      opPower_mW, limPower_mW, giveBack, capMismatch, rdoType } = sink.lastRequest;
+    const isAdj = rdoType === 'PPS' || rdoType === 'AVS';
     const isBattery = rdoType === 'Battery';
     const rdoSummary = isAdj && opVoltage_mV != null
       ? `PDO#${objPos}  ${(opVoltage_mV / 1000).toFixed(2)} V / ${(opCurrent_mA / 1000).toFixed(2)} A`
@@ -324,22 +324,22 @@ function buildSinkItems(sink) {
       color: '#90caf9',
       autoExpand: true,
       children: [
-        { key: 'Object Pos',  value: `#${objPos}` },
-        { key: 'RDO Type',    value: rdoType ?? 'Fixed' },
+        { key: 'Object Pos', value: `#${objPos}` },
+        { key: 'RDO Type', value: rdoType ?? 'Fixed' },
         ...(isAdj && opVoltage_mV != null
           ? [{ key: 'Out Voltage', value: `${(opVoltage_mV / 1000).toFixed(2)} V`, color: '#a5d6a7' }]
           : []),
         ...(isBattery
           ? [
-              { key: 'Op Power',  value: `${(opPower_mW / 1000).toFixed(2)} W` },
-              { key: `${giveBack ? 'Min' : 'Max'} Power`, value: `${(limPower_mW / 1000).toFixed(2)} W` },
-            ]
+            { key: 'Op Power', value: `${(opPower_mW / 1000).toFixed(2)} W` },
+            { key: `${giveBack ? 'Min' : 'Max'} Power`, value: `${(limPower_mW / 1000).toFixed(2)} W` },
+          ]
           : [
-              { key: 'Op Current',  value: `${(opCurrent_mA  / 1000).toFixed(2)} A` },
-              ...(!isAdj && maxCurrent_mA != null
-                ? [{ key: 'Max Current', value: `${(maxCurrent_mA / 1000).toFixed(2)} A` }]
-                : []),
-            ]
+            { key: 'Op Current', value: `${(opCurrent_mA / 1000).toFixed(2)} A` },
+            ...(!isAdj && maxCurrent_mA != null
+              ? [{ key: 'Max Current', value: `${(maxCurrent_mA / 1000).toFixed(2)} A` }]
+              : []),
+          ]
         ),
         ...(giveBack ? [{ key: 'GiveBack', value: '', color: '#90caf9' }] : []),
         ...(capMismatch ? [{ key: '⚠ CapMismatch', value: '', color: '#ff9800' }] : []),
@@ -357,9 +357,9 @@ function buildSinkItems(sink) {
   }
 
   if (sink.skedb?.length) {
-    const maxPdp    = sink.skedb.find((s) => s.label === 'Sink Maximum PDP')?.value ?? '';
+    const maxPdp = sink.skedb.find((s) => s.label === 'Sink Maximum PDP')?.value ?? '';
     const eprMaxPdp = sink.skedb.find((s) => s.label === 'EPR Sink Maximum PDP')?.value ?? '';
-    const summary   = [maxPdp && `MaxPDP:${maxPdp}`, eprMaxPdp && `EPR:${eprMaxPdp}`].filter(Boolean).join('  ');
+    const summary = [maxPdp && `MaxPDP:${maxPdp}`, eprMaxPdp && `EPR:${eprMaxPdp}`].filter(Boolean).join('  ');
     items.push({
       key: 'SKEDB',
       value: summary,
@@ -375,9 +375,9 @@ function buildSinkItems(sink) {
     const mismatch = skedbVid && extractVidHex(skedbVid) !== extractVidHex(vid);
     const children = [
       { key: 'VID', value: vendor ? `${vid}  ${vendor}` : vid },
-      ...(pid      ? [{ key: 'PID',      value: pid }]      : []),
+      ...(pid ? [{ key: 'PID', value: pid }] : []),
       ...(bcdDevice ? [{ key: 'bcdDevice', value: bcdDevice }] : []),
-      ...(xid      ? [{ key: 'XID',      value: xid }]      : []),
+      ...(xid ? [{ key: 'XID', value: xid }] : []),
       ...(mismatch ? [{ key: '⚠ VID mismatch', value: `SKEDB:${skedbVid}  vs  discId:${vid}`, color: '#ff9800' }] : []),
     ];
     items.push({
@@ -478,8 +478,8 @@ function PropPanel({ title, items, width }) {
 // ── Center chain components ──────────────────────────────────────
 
 function nodeState(connected, eprActive, hasContract) {
-  if (!connected)  return 'inactive';
-  if (eprActive)   return 'epr';
+  if (!connected) return 'inactive';
+  if (eprActive) return 'epr';
   if (hasContract) return 'contract';
   return 'active';
 }
@@ -513,8 +513,8 @@ const GRID_COLS_SRC = [
 const GRID_COLS_SNK = [
   { key: 'vMax', label: 'V.max', unit: 'V' },
   { key: 'vMin', label: 'V.min', unit: 'V' },
-  { key: 'iMax', label: 'I.op',  unit: 'A' },
-  { key: 'pMax', label: 'P.op',  unit: 'W' },
+  { key: 'iMax', label: 'I.op', unit: 'A' },
+  { key: 'pMax', label: 'P.op', unit: 'W' },
 ];
 
 // Format a milli-unit value for display. Returns '—' when null.
@@ -530,17 +530,17 @@ function pdoToGrid(pdo) {
   const _ = null;
   switch (pdo.pdoType) {
     case 'Fixed':
-      return { vMax: pdo.vMv,    vMin: _,          iMax: pdo.iMa,            pMax: _                                     };
+      return { vMax: pdo.vMv, vMin: _, iMax: pdo.iMa, pMax: _ };
     case 'Battery':
-      return { vMax: pdo.vMaxMv, vMin: pdo.vMinMv, iMax: _,                  pMax: pdo.wMax                               };
+      return { vMax: pdo.vMaxMv, vMin: pdo.vMinMv, iMax: _, pMax: pdo.wMax };
     case 'Variable':
-      return { vMax: pdo.vMaxMv, vMin: pdo.vMinMv, iMax: pdo.iMa,            pMax: _                                     };
+      return { vMax: pdo.vMaxMv, vMin: pdo.vMinMv, iMax: pdo.iMa, pMax: _ };
     case 'APDO_PPS':
-      return { vMax: pdo.vMaxMv, vMin: pdo.vMinMv, iMax: pdo.iMa,            pMax: _                                     };
+      return { vMax: pdo.vMaxMv, vMin: pdo.vMinMv, iMax: pdo.iMa, pMax: _ };
     case 'APDO_AVS':
-      return { vMax: pdo.vMaxMv, vMin: pdo.vMinMv, iMax: _,                  pMax: pdo.pdpW != null ? pdo.pdpW * 1000 : _ };
+      return { vMax: pdo.vMaxMv, vMin: pdo.vMinMv, iMax: _, pMax: pdo.pdpW != null ? pdo.pdpW * 1000 : _ };
     case 'APDO_SPR_AVS':
-      return { vMax: pdo.vMaxMv, vMin: pdo.vMinMv, iMax: pdo.iMa_9_15 ?? _, pMax: _                                     };
+      return { vMax: pdo.vMaxMv, vMin: pdo.vMinMv, iMax: pdo.iMa_9_15 ?? _, pMax: _ };
     default:
       return { vMax: pdo.vMv ?? pdo.vMaxMv ?? _, vMin: pdo.vMinMv ?? _, iMax: pdo.iMa ?? _, pMax: _ };
   }
@@ -609,11 +609,11 @@ function CapList({ caps, selectedObjPos, rdo, isSink = false }) {
 }
 
 const PDO_TYPE_DEFS = [
-  { key: 'Fixed',        label: 'FIX',   color: '#80deea' },
-  { key: 'Battery',      label: 'BAT',   color: '#ffcc80' },
-  { key: 'Variable',     label: 'VAR',   color: '#b39ddb' },
-  { key: 'APDO_PPS',     label: 'PPS',   color: '#a5d6a7' },
-  { key: 'APDO_AVS',     label: 'AVS',   color: '#f48fb1' },
+  { key: 'Fixed', label: 'FIX', color: '#80deea' },
+  { key: 'Battery', label: 'BAT', color: '#ffcc80' },
+  { key: 'Variable', label: 'VAR', color: '#b39ddb' },
+  { key: 'APDO_PPS', label: 'PPS', color: '#a5d6a7' },
+  { key: 'APDO_AVS', label: 'AVS', color: '#f48fb1' },
   { key: 'APDO_SPR_AVS', label: 'S-AVS', color: '#ce93d8' },
 ];
 
@@ -652,11 +652,11 @@ function EprLamp({ mode }) {
 
 function RdoPanel({ rdo, sourceCaps }) {
   const { objPos, opVoltage_mV, opCurrent_mA, maxCurrent_mA,
-          opPower_mW, limPower_mW, giveBack, capMismatch, rdoType } = rdo;
+    opPower_mW, limPower_mW, giveBack, capMismatch, rdoType } = rdo;
   const isAdj = rdoType === 'PPS' || rdoType === 'AVS';
   const isBat = rdoType === 'Battery';
   const isVar = rdoType === 'Variable';
-  const pdo   = sourceCaps?.[objPos - 1] ?? null;
+  const pdo = sourceCaps?.[objPos - 1] ?? null;
 
   // Derive voltage label/value from source PDO or negotiated value
   // For adjustable RDOs: prefer the negotiated opVoltage_mV over the PDO range
@@ -746,17 +746,17 @@ function SrcSpecBadge({ source }) {
   const dfpLabel = DFP_TYPE_LABELS[dfpPType] ?? '';
   if (!scdb?.length && !source.eprActive && !eprCapFromCaps && !source.vdmSeen && !source.drd && !source.drp && !source.altMode) return null;
 
-  const scdbVal  = (label) => scdb?.find((s) => s.label === label)?.value ?? null;
-  const scdbVid  = scdbVal('VID');
-  const discVid  = source.discId?.vid ?? null;
+  const scdbVal = (label) => scdb?.find((s) => s.label === label)?.value ?? null;
+  const scdbVid = scdbVal('VID');
+  const discVid = source.discId?.vid ?? null;
   // Prefer SCDB VID (comes from device-reported Ext msg); fall back to Discover Identity VID
-  const vidStr   = scdbVid ?? discVid;
-  const vendor   = vidToVendor(vidStr);
-  const pid      = scdbVal('PID') ?? source.discId?.pid ?? null;
+  const vidStr = scdbVid ?? discVid;
+  const vendor = vidToVendor(vidStr);
+  const pid = scdbVal('PID') ?? source.discId?.pid ?? null;
   const vidMismatch = scdbVid && discVid && extractVidHex(scdbVid) !== extractVidHex(discVid);
-  const eprPdp   = scdbVal('EPR PDP Rating');
-  const sprPdp   = scdbVal('SPR PDP Rating');
-  const eprCap   = eprPdp && parseInt(eprPdp) > 0;
+  const eprPdp = scdbVal('EPR PDP Rating');
+  const sprPdp = scdbVal('SPR PDP Rating');
+  const eprCap = eprPdp && parseInt(eprPdp) > 0;
   const displayPdp = eprCap ? eprPdp : sprPdp;
 
   return (
@@ -803,17 +803,17 @@ function SinkSpecBadge({ sink }) {
   const ufpLabel = UFP_TYPE_LABELS[ufpPType] ?? '';
   if (!skedb?.length && !sink.eprActive && !extMsgCap && !sink.vdmSeen && !sink.drd && !sink.drp && !sink.altMode) return null;
 
-  const skedbVal  = (label) => skedb?.find((s) => s.label === label)?.value ?? null;
-  const skedbVid  = skedbVal('VID');
-  const discVid   = sink.discId?.vid ?? null;
+  const skedbVal = (label) => skedb?.find((s) => s.label === label)?.value ?? null;
+  const skedbVid = skedbVal('VID');
+  const discVid = sink.discId?.vid ?? null;
   // Prefer SKEDB VID; fall back to Discover Identity VID
-  const vidStr    = skedbVid ?? discVid;
-  const vendor    = vidToVendor(vidStr);
-  const pid       = skedbVal('PID') ?? sink.discId?.pid ?? null;
+  const vidStr = skedbVid ?? discVid;
+  const vendor = vidToVendor(vidStr);
+  const pid = skedbVal('PID') ?? sink.discId?.pid ?? null;
   const vidMismatch = skedbVid && discVid && extractVidHex(skedbVid) !== extractVidHex(discVid);
-  const maxPdp    = skedbVal('Sink Maximum PDP');
+  const maxPdp = skedbVal('Sink Maximum PDP');
   const eprMaxPdp = skedbVal('EPR Sink Maximum PDP');
-  const eprCap    = eprMaxPdp && parseInt(eprMaxPdp) > 0;
+  const eprCap = eprMaxPdp && parseInt(eprMaxPdp) > 0;
   const displayPdp = eprCap ? eprMaxPdp : maxPdp;
 
   return (
@@ -842,8 +842,8 @@ function SinkSpecBadge({ sink }) {
 function SinkContent({ sink, sourceCaps }) {
   const hasSnkCaps = sink.capabilities.length > 0;
   const hasSrcCaps = sink.srcCaps?.length > 0;
-  const hasRdo     = !!sink.lastRequest;
-  const hasRight   = hasRdo || hasSrcCaps;
+  const hasRdo = !!sink.lastRequest;
+  const hasRight = hasRdo || hasSrcCaps;
   // RDO (+ SRC CAP) is always on the Source-side (left), SNK CAP on the far side (right)
   return (
     <div className={styles.sinkColumns}>
@@ -890,16 +890,16 @@ function ContractInMarker({ contract }) {
     return (
       <div className={styles.contractIn}>
         <ContractInRow label="Contract.V" value="---.---" unit="V" color={DIM} />
-        <ContractInRow label="Contract.I" value="---.---"  unit="A" color={DIM} />
+        <ContractInRow label="Contract.I" value="---.---" unit="A" color={DIM} />
       </div>
     );
   }
   const { pdo, objPos, opVoltage_mV, opCurrent_mA, opPower_mW, rdoType } = contract;
-  const isAdj     = rdoType === 'PPS' || rdoType === 'AVS';
+  const isAdj = rdoType === 'PPS' || rdoType === 'AVS';
   const isBattery = rdoType === 'Battery';
   const vMv = isAdj ? opVoltage_mV
     : pdo?.pdoType === 'Fixed' ? pdo.vMv
-    : null;
+      : null;
   return (
     <div className={styles.contractIn}>
       <span className={styles.contractInPdo}>PDO #{objPos}</span>
@@ -911,17 +911,17 @@ function ContractInMarker({ contract }) {
       />
       {isBattery
         ? <ContractInRow
-            label="Contract.P"
-            value={opPower_mW != null ? (opPower_mW / 1000).toFixed(2) : '---.--'}
-            unit="W"
-            color="#ffcc80"
-          />
+          label="Contract.P"
+          value={opPower_mW != null ? (opPower_mW / 1000).toFixed(2) : '---.--'}
+          unit="W"
+          color="#ffcc80"
+        />
         : <ContractInRow
-            label="Contract.I"
-            value={opCurrent_mA != null ? (opCurrent_mA / 1000).toFixed(3) : '---.---'}
-            unit="A"
-            color="#a5d6a7"
-          />
+          label="Contract.I"
+          value={opCurrent_mA != null ? (opCurrent_mA / 1000).toFixed(3) : '---.---'}
+          unit="A"
+          color="#a5d6a7"
+        />
       }
     </div>
   );
@@ -952,9 +952,9 @@ function NodeBox({ label, badge, sub, meterRows, capList, mode, state, narrow })
 function CableWithEMarker({ state, sop1, sop2, contract }) {
   const trackCls = {
     inactive: styles.cableInactive,
-    active:   styles.cableActive,
+    active: styles.cableActive,
     contract: styles.cableContract,
-    epr:      styles.cableEPR,
+    epr: styles.cableEPR,
   }[state] ?? styles.cableInactive;
   const dotCls = { inactive: styles.dotGray, active: styles.dotGreen, contract: styles.dotBlue, epr: styles.dotOrange }[state] ?? styles.dotGray;
   const anyDetected = sop1 || sop2;
@@ -995,25 +995,38 @@ function ContractBox({ contract, state }) {
 
 export default function TopologyView() {
   const { source, eMarker, sink, cable } = useAppStore((s) => s.topology);
-  const messages     = useAppStore((s) => s.messages);
+  const messages = useAppStore((s) => s.messages);
   const replayFrames = useAppStore((s) => s.replayFrames);
 
   const handleRefresh = useCallback(() => replayFrames(messages), [replayFrames, messages]);
 
   // ── Resizable panes ──────────────────────────────────────────
-  const wrapperRef  = useRef(null);
+  const wrapperRef = useRef(null);
   const [topoHeight, setTopoHeight] = useState(null);  // null = auto
-  const [srcPanelW,  setSrcPanelW]  = useState(200);
-  const [snkPanelW,  setSnkPanelW]  = useState(260);
+  const [srcPanelW, setSrcPanelW] = useState(200);
+  const [snkPanelW, setSnkPanelW] = useState(260);
 
   /** Start a drag-resize. setter receives (startSize + sign * delta). */
   const startDrag = useCallback((e, startSize, setter, axis, sign, min) => {
     e.preventDefault();
-    const coord0 = axis === 'x' ? e.clientX : e.clientY;
+    let coord0;
+    if (e.type.startsWith('touch')) {
+      const touch = e.touches[0];
+      coord0 = axis === 'x' ? touch.clientX : touch.clientY;
+    } else {
+      coord0 = axis === 'x' ? e.clientX : e.clientY;
+    }
     document.body.style.userSelect = 'none';
     document.body.style.cursor = axis === 'x' ? 'ew-resize' : 'ns-resize';
     const onMove = (mv) => {
-      const delta = (axis === 'x' ? mv.clientX : mv.clientY) - coord0;
+      let clientCoord;
+      if (mv.type.startsWith('touch')) {
+        const touch = mv.touches[0];
+        clientCoord = axis === 'x' ? touch.clientX : touch.clientY;
+      } else {
+        clientCoord = axis === 'x' ? mv.clientX : mv.clientY;
+      }
+      const delta = clientCoord - coord0;
       setter(Math.max(min, startSize + sign * delta));
     };
     const onUp = () => {
@@ -1021,9 +1034,13 @@ export default function TopologyView() {
       document.body.style.cursor = '';
       window.removeEventListener('mousemove', onMove);
       window.removeEventListener('mouseup', onUp);
+      window.removeEventListener('touchmove', onMove);
+      window.removeEventListener('touchend', onUp);
     };
     window.addEventListener('mousemove', onMove);
     window.addEventListener('mouseup', onUp);
+    window.addEventListener('touchmove', onMove, { passive: false });
+    window.addEventListener('touchend', onUp);
   }, []);
 
   const onHeightDragStart = useCallback((e) => {
@@ -1040,22 +1057,22 @@ export default function TopologyView() {
   }, [startDrag, snkPanelW]);
 
   const srcState = nodeState(source.connected, source.eprActive, !!source.contract);
-  const snkState = nodeState(sink.connected,   sink.eprActive,   !!source.contract);
+  const snkState = nodeState(sink.connected, sink.eprActive, !!source.contract);
 
   const cableState = useMemo(() => {
     if (!source.connected && !sink.connected) return cable.attached ? 'active' : 'inactive';
-    if (source.eprActive || sink.eprActive)   return 'epr';
-    if (source.contract)                      return 'contract';
-    if (source.connected || sink.connected)   return 'active';
+    if (source.eprActive || sink.eprActive) return 'epr';
+    if (source.contract) return 'contract';
+    if (source.connected || sink.connected) return 'active';
     return 'inactive';
   }, [source, sink, cable]);
 
-  const srcItems   = useMemo(() => buildSourceItems(source), [source]);
-  const snkItems   = useMemo(() => buildSinkItems(sink), [sink]);
+  const srcItems = useMemo(() => buildSourceItems(source), [source]);
+  const snkItems = useMemo(() => buildSinkItems(sink), [sink]);
 
   // Simple text sub when no cap list is available (rarely shown)
   const srcSub = source.connected ? (source.eprActive ? 'EPR' : 'PD') : '';
-  const snkSub = sink.connected   ? (sink.eprActive   ? 'EPR' : 'PD') : '';
+  const snkSub = sink.connected ? (sink.eprActive ? 'EPR' : 'PD') : '';
 
   // ── Cap lists for SOURCE and SINK node boxes ────────────────
   const srcCapList = useMemo(() => {
