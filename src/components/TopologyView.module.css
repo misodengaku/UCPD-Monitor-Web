@@ -209,6 +209,7 @@
   .center {
     padding: 4px 6px;
     gap: 4px;
+    overflow-x: auto;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
   }
@@ -227,6 +228,7 @@
   align-items: flex-start;
   justify-content: center;
   width: 100%;
+  min-width: fit-content;
 }
 
 /* レスポンシブ対応: スマホ用のチェイン表示 */

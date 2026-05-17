@@ -246,3 +246,10 @@
   height: 180px;
   flex-shrink: 0;
 }
+
+/* レスポンシブ対応: スマホ用のコンソール表示 */
+@media (max-width: 768px) {
+  .consoleArea {
+    height: 120px;
+  }
+}
