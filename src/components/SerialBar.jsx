@@ -126,29 +126,52 @@ export default function SerialBar({ sendMessage }) {
   const handleDisconnect = useCallback(async () => {
     // WebSerial disconnection
     if (webSerialPort) {
-      // Stop the buffer processing timer
-      if (bufferTimer.current) {
-        clearInterval(bufferTimer.current);
-        bufferTimer.current = null;
-      }
+      try {
+        // Stop the buffer processing timer
+        if (bufferTimer.current) {
+          clearInterval(bufferTimer.current);
+          bufferTimer.current = null;
+        }
 
-      // Process any remaining data in the buffer
-      if (dataBuffer.current.length > 0) {
-        processRawData(dataBuffer.current.trim(), 'webserial');
-        dataBuffer.current = '';
-      }
+        // Process any remaining data in the buffer
+        if (dataBuffer.current.length > 0) {
+          processRawData(dataBuffer.current.trim(), 'webserial');
+          dataBuffer.current = '';
+        }
 
-      // Close the port
-      await webSerialPort.close();
-      setWebSerialPort(null);
+        // Cancel any ongoing read operations
+        if (readerRef.current) {
+          try {
+            await readerRef.current.cancel();
+          } catch (err) {
+            console.warn('Error cancelling reader:', err);
+          }
+          readerRef.current = null;
+        }
+
+        // Close the port
+        await webSerialPort.close();
+      } catch (error) {
+        console.error('Error closing WebSerial port:', error);
+      } finally {
+        setWebSerialPort(null);
+        // Update serial status
+        useAppStore.getState().setSerialStatus({
+          connected: false,
+          port: null,
+          baudRate: null,
+          error: null
+        });
+      }
+    } else {
+      // Even if webSerialPort is null, ensure status is updated
+      useAppStore.getState().setSerialStatus({
+        connected: false,
+        port: null,
+        baudRate: null,
+        error: null
+      });
     }
-    // Update serial status
-    useAppStore.getState().setSerialStatus({
-      connected: false,
-      port: null,
-      baudRate: null,
-      error: null
-    });
   }, [webSerialPort, processRawData]);
 
   const isConnected = serialStatus.connected;
@@ -174,7 +197,7 @@ export default function SerialBar({ sendMessage }) {
       {/* Status indicator */}
       <span className={isConnected ? styles.statusOn : styles.statusOff}>
         {isConnected
-          ? '● WebSerial'
+          ? '● Connected'
           : serialStatus.error
             ? `✕ ${serialStatus.error}`
             : '○ not connected'}
