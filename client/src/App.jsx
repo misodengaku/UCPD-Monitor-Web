@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 AsO
 import { useCallback, useState } from 'react';
-import { useWebSocket } from './hooks/useWebSocket';
+import { useStaticData } from './hooks/useStaticData';
 import { useCpdImport } from './hooks/useCpdImport';
 import { useAppStore }  from './store/appStore';
 const useSerialConnected = () => useAppStore((s) => s.serialStatus.connected);
@@ -49,7 +49,7 @@ function ImportBadge() {
 }
 
 export default function App() {
-  const { sendPing, sendMessage }       = useWebSocket();
+  const { sendPing, sendMessage }       = useStaticData();
   const { openLogsFilePicker, openImportFilePicker, importFiles } = useCpdImport();
   const serialConnected                 = useSerialConnected();
   const [dragging, setDragging]     = useState(false);

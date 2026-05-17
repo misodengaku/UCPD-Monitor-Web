@@ -2,7 +2,7 @@
 
 [English](README.md) | [日本語](README.ja.md)
 
-A cross-platform Electron desktop application for real-time monitoring and analysis of USB Power Delivery (PD) communication captured by STM32 UCPD hardware.
+A cross-platform web application for real-time monitoring and analysis of USB Power Delivery (PD) communication captured by STM32 UCPD hardware using WebSerial.
 
 It reads `.cpd` binary streams produced by STM32CubeMonitor-UCPD and decodes them against the **USB PD Revision 3.2, Version 1.0 (2023-10)** specification — providing a live Connection View, a fully-decoded message table, and clipboard-ready export.
 
@@ -37,27 +37,37 @@ The **STM32G071B-DISCO** board from STMicroelectronics includes a UCPD SPY mode 
 
 | Component | Technology |
 |---|---|
-| Desktop shell | Electron 41 |
 | UI | React 19 + Vite 8 |
 | State management | Zustand |
 | Virtual scroll | @tanstack/react-virtual |
-| Backend | Express 4 + Node.js |
-| Real-time transport | WebSocket (`ws`) |
-| Serial communication | `serialport` 13 |
-| Packaging | electron-builder |
+| Serial communication | WebSerial |
+| Deployment | Static HTML/JS/CSS |
 
 ---
 
 ## Getting Started
 
-Download the latest installer from the [Releases](https://github.com/aso/UCPD-Monitor/releases) page and run it.
+### Prerequisites
 
-| Platform | File |
-|---|---|
-| Windows | NSIS installer (`.exe`) |
-| Linux | AppImage |
+- A modern web browser that supports WebSerial (Chrome, Edge, etc.)
+- An STM32 UCPD device connected via USB
 
-After installation, launch **UCPD-Monitor**.
+### Running the Application (Development)
+
+1. Clone the repository
+2. Install dependencies: `npm install`
+3. Start the development server: `npm run dev`
+4. Open your browser and navigate to `http://localhost:5173`
+
+### Static Deployment
+
+For production deployment, the application can be built as a static site:
+
+1. Build the static application: `npm run build`
+2. The static files will be generated in `client/dist/`
+3. Deploy these files to any static web server (nginx, Apache, etc.)
+
+See [STATIC_DEPLOYMENT.md](STATIC_DEPLOYMENT.md) for detailed deployment instructions.
 
 ---
 
@@ -66,7 +76,7 @@ After installation, launch **UCPD-Monitor**.
 ### Connecting to a Device
 
 1. Plug the STM32 UCPD device into a USB port.
-2. Select the COM port from the dropdown in the title bar.
+2. Select the COM port from the dropdown in the title bar, or check the "WebSerial" box to use WebSerial.
 3. Click **Connect**. Live PD frames appear immediately.
 
 ### Importing a `.cpd` File
