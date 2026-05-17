@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 AsO
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { useAppStore } from '../store/appStore';
 import { useStaticData } from '../hooks/useStaticData';
 import styles from './SerialBar.module.css';
@@ -22,9 +22,24 @@ export default function SerialBar({ sendMessage }) {
   // In static version, we use the static data hook for processing
   const { processRawData } = useStaticData();
   const serialStatus = useAppStore((s) => s.serialStatus);
-  const ports        = useAppStore((s) => s.serialPorts);
+  const ports = useAppStore((s) => s.serialPorts);
 
   const [webSerialPort, setWebSerialPort] = useState(null);
+
+  // Buffering for WebSerial data
+  const dataBuffer = useRef('');
+  const bufferTimer = useRef(null);
+  const lastDataTime = useRef(0);
+  const readerRef = useRef(null);
+
+  // Clear buffer timer on unmount
+  useEffect(() => {
+    return () => {
+      if (bufferTimer.current) {
+        clearInterval(bufferTimer.current);
+      }
+    };
+  }, []);
 
   const handleRefresh = useCallback(() => {
     // For WebSerial, we don't need to refresh the port list
@@ -37,12 +52,31 @@ export default function SerialBar({ sendMessage }) {
       const port = await navigator.serial.requestPort();
       await port.open({ baudRate: USB_CDC_BAUD });
       setWebSerialPort(port);
-      
+
       // Read data from the port
       const reader = port.readable.getReader();
-      const decoder = new TextDecoder();
-      let buffer = '';
-      
+      readerRef.current = reader;
+
+      // Process buffered data
+      const processBuffer = () => {
+        // Only process if there's data in the buffer
+        if (dataBuffer.current.length > 0) {
+          // Check if we haven't received data for a while (150ms)
+          if (Date.now() - lastDataTime.current > 150) {
+            // Process the buffer
+            processRawData(dataBuffer.current.trim(), 'webserial');
+            // Clear the buffer
+            dataBuffer.current = '';
+          }
+        }
+      };
+
+      // Start buffer processing timer
+      if (bufferTimer.current) {
+        clearInterval(bufferTimer.current);
+      }
+      bufferTimer.current = setInterval(processBuffer, 100); // Process buffer every 100ms
+
       const readLoop = async () => {
         try {
           while (true) {
@@ -52,18 +86,25 @@ export default function SerialBar({ sendMessage }) {
             }
             // Convert bytes to hex string
             const hex = Array.from(value).map(b => b.toString(16).padStart(2, '0')).join(' ');
-            // Process directly in browser
-            processRawData(hex, 'webserial');
+            // Add to buffer
+            dataBuffer.current += hex + ' ';
+            lastDataTime.current = Date.now();
+
+            // Process buffer immediately if it gets too large
+            if (dataBuffer.current.length > 10000) {
+              processBuffer();
+            }
           }
         } catch (error) {
           console.error('Error reading from WebSerial port:', error);
         } finally {
           reader.releaseLock();
+          readerRef.current = null;
         }
       };
-      
+
       readLoop();
-      
+
       // Update serial status
       useAppStore.getState().setSerialStatus({
         connected: true,
@@ -85,6 +126,19 @@ export default function SerialBar({ sendMessage }) {
   const handleDisconnect = useCallback(async () => {
     // WebSerial disconnection
     if (webSerialPort) {
+      // Stop the buffer processing timer
+      if (bufferTimer.current) {
+        clearInterval(bufferTimer.current);
+        bufferTimer.current = null;
+      }
+
+      // Process any remaining data in the buffer
+      if (dataBuffer.current.length > 0) {
+        processRawData(dataBuffer.current.trim(), 'webserial');
+        dataBuffer.current = '';
+      }
+
+      // Close the port
       await webSerialPort.close();
       setWebSerialPort(null);
     }
@@ -95,14 +149,14 @@ export default function SerialBar({ sendMessage }) {
       baudRate: null,
       error: null
     });
-  }, [webSerialPort]);
+  }, [webSerialPort, processRawData]);
 
   const isConnected = serialStatus.connected;
 
   return (
     <>
       <span className={appStyles.separator} />
-      
+
       {/* Connect / Disconnect */}
       {isConnected ? (
         <button className={styles.disconnectBtn} onClick={handleDisconnect}>
