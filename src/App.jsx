@@ -11,26 +11,6 @@ import Console          from './components/Console';
 import SerialBar        from './components/SerialBar';
 import styles           from './App.module.css';
 
-function StatusBadge() {
-  const status = useAppStore((s) => s.wsStatus);
-  const colorMap = {
-    connected:    '#4caf50',
-    connecting:   '#ff9800',
-    disconnected: '#f44336',
-    error:        '#e91e63',
-  };
-  const labelMap = {
-    connected:    'App: Active',
-    connecting:   'App: Connecting…',
-    disconnected: 'App: Disconnected',
-    error:        'App: Error',
-  };
-  return (
-    <span style={{ color: colorMap[status] ?? '#aaa', fontSize: 12 }}>
-      ● {labelMap[status] ?? status}
-    </span>
-  );
-}
 
 function ImportBadge() {
   const { loading, done, total, warnings } = useAppStore((s) => s.importStatus);
@@ -99,7 +79,6 @@ export default function App() {
           UCPD-Monitor
           <span className={styles.titleVersion}>v{import.meta.env.VITE_APP_VERSION}</span>
         </span>
-        <StatusBadge />
         <ImportBadge />
         <button
           onClick={openLogsFilePicker}
