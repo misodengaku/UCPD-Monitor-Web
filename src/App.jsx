@@ -3,6 +3,7 @@
 import { useCallback, useState } from 'react';
 import { useStaticData } from './hooks/useStaticData';
 import { useCpdImport } from './hooks/useCpdImport';
+import { useCpdExport } from './hooks/useCpdExport';
 import { useAppStore } from './store/appStore';
 const useSerialConnected = () => useAppStore((s) => s.serialStatus.connected);
 import TopologyView from './components/TopologyView';
@@ -31,11 +32,14 @@ function ImportBadge() {
 export default function App() {
   const { sendPing, sendMessage } = useStaticData();
   const { openLogsFilePicker, openImportFilePicker, importFiles } = useCpdImport();
+  const { exportCpdFile } = useCpdExport();
   const serialConnected = useSerialConnected();
+  const messages = useAppStore((s) => s.messages);
   const [dragging, setDragging] = useState(false);
   const [showTopology, setShowTopology] = useState(true);
   const [showConsole, setShowConsole] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [expandedPanel, setExpandedPanel] = useState(null); // 'topology', 'messages', or 'console'
 
   const onDragOver = useCallback((e) => {
     e.preventDefault();
@@ -56,6 +60,20 @@ export default function App() {
     );
     if (files.length) importFiles(files);
   }, [importFiles]);
+
+  // パネルの拡張表示を切り替える関数
+  const toggleExpandedPanel = useCallback((panelName) => {
+    setExpandedPanel(expandedPanel === panelName ? null : panelName);
+  }, [expandedPanel]);
+
+  // パネルの通常表示を切り替える関数
+  const togglePanel = useCallback((panelName) => {
+    if (panelName === 'topology') {
+      setShowTopology(v => !v);
+    } else if (panelName === 'console') {
+      setShowConsole(v => !v);
+    }
+  }, []);
 
   return (
     <div
@@ -96,15 +114,21 @@ export default function App() {
             disabled={serialConnected}
             title={serialConnected ? 'Disconnect DISCO before importing a .cpd file' : 'Import from last used folder'}
           >.cpd Import</button>
+          <button
+            onClick={exportCpdFile}
+            className={styles.exportBtn}
+            title="Export captured data to .cpd file"
+            disabled={messages.length === 0}
+          >.cpd Export</button>
           <button onClick={sendPing} className={styles.pingBtn} style={{ display: 'none' }}>Ping</button>
           <button
             className={`${styles.panelToggleBtn} ${showTopology ? styles.panelToggleActive : ''}`}
-            onClick={() => setShowTopology((v) => !v)}
+            onClick={() => togglePanel('topology')}
             title="Toggle Connection View panel"
           >Connection View</button>
           <button
             className={`${styles.panelToggleBtn} ${showConsole ? styles.panelToggleActive : ''}`}
-            onClick={() => setShowConsole((v) => !v)}
+            onClick={() => togglePanel('console')}
             title="Toggle Console panel"
           >Console</button>
           <SerialBar sendMessage={sendMessage} />
@@ -129,39 +153,82 @@ export default function App() {
               disabled={serialConnected}
               title={serialConnected ? 'Disconnect DISCO before importing a .cpd file' : 'Import from last used folder'}
             >.cpd Import</button>
+            <button
+              onClick={exportCpdFile}
+              className={styles.menuItem}
+              title="Export captured data to .cpd file"
+              disabled={messages.length === 0}
+            >.cpd Export</button>
             <button onClick={sendPing} className={styles.menuItem} style={{ display: 'none' }}>Ping</button>
             <div className={styles.menuSeparator}></div>
             <button
               className={`${styles.menuItem} ${showTopology ? styles.panelToggleActive : ''}`}
-              onClick={() => setShowTopology((v) => !v)}
+              onClick={() => togglePanel('topology')}
               title="Toggle Connection View panel"
             >Connection View</button>
             <button
               className={`${styles.menuItem} ${showConsole ? styles.panelToggleActive : ''}`}
-              onClick={() => setShowConsole((v) => !v)}
+              onClick={() => togglePanel('console')}
               title="Toggle Console panel"
             >Console</button>
             <div className={styles.menuSeparator}></div>
             <SerialBar sendMessage={sendMessage} />
           </div>
         </div>
-      </header>
+      </header >
 
-      {/* Connection View strip */}
-      {showTopology && <TopologyView />}
-
-      {/* Main area: message table */}
-      <div className={styles.main}>
-        <MessageTable />
-      </div>
-
-      {/* Console */}
-      {showConsole && (
-        <div className={styles.consoleArea}>
-          <Console />
+      {/* Connection View panel */}
+      < div className={`${styles.panelContent} ${expandedPanel === 'topology' ? styles.expanded : ''}`
+      }>
+        <div
+          className={styles.panelHeader}
+          onClick={() => toggleExpandedPanel('topology')}
+        >
+          <span>Connection View</span>
+          <span>{expandedPanel === 'topology' ? '▼' : '▲'}</span>
         </div>
-      )}
-    </div>
+        {
+          showTopology && (
+            <div className={styles.panelContainer}>
+              <TopologyView />
+            </div>
+          )
+        }
+      </div >
+
+      {/* Message Log panel */}
+      < div className={`${styles.panelContent} ${expandedPanel === 'messages' ? styles.expanded : ''}`}>
+        <div
+          className={styles.panelHeader}
+          onClick={() => toggleExpandedPanel('messages')}
+        >
+          <span>Message Log</span>
+          <span>{expandedPanel === 'messages' ? '▼' : '▲'}</span>
+        </div>
+        <div className={styles.panelContainer}>
+          <MessageTable />
+        </div>
+      </div >
+
+      {/* Console panel */}
+      < div className={`${styles.panelContent} ${expandedPanel === 'console' ? styles.expanded : ''}`}>
+        <div
+          className={styles.panelHeader}
+          onClick={() => toggleExpandedPanel('console')}
+        >
+          <span>Console</span>
+          <span>{expandedPanel === 'console' ? '▼' : '▲'}</span>
+        </div>
+        {
+          showConsole && (
+            <div className={styles.panelContainer}>
+              <div className={styles.consoleArea}>
+                <Console />
+              </div>
+            </div>
+          )
+        }
+      </div >
+    </div >
   );
 }
-

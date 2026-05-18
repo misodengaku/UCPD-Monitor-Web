@@ -9,6 +9,7 @@ const pkg = JSON.parse(readFileSync(resolve('./package.json'), 'utf-8'))
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: "./",
   plugins: [react()],
   test: {
     environment: 'node',

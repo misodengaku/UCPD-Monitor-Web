@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 AsO
-import { useState, useMemo, useCallback, useRef } from 'react';
+import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { useAppStore } from '../store/appStore';
 import styles from './TopologyView.module.css';
 
@@ -992,11 +992,27 @@ function ContractBox({ contract, state }) {
 }
 
 // ── Main export ───────────────────────────────────────────────────
-
 export default function TopologyView() {
-  const { source, eMarker, sink, cable } = useAppStore((s) => s.topology);
+  const topology = useAppStore((s) => s.topology);
+  const { source, eMarker, sink, cable } = topology;
+  console.log("Topology state:", topology);
+
+  // Log individual topology components to see if they change
+  console.log("Source:", source);
+  console.log("EMarker:", eMarker);
+  console.log("Sink:", sink);
+  console.log("Cable:", cable);
+
+  // Force re-render when topology changes
+  const [, forceUpdate] = useState({});
+  useEffect(() => {
+    console.log("Topology changed, forcing re-render");
+    forceUpdate({});
+  }, [topology]);
+
   const messages = useAppStore((s) => s.messages);
   const replayFrames = useAppStore((s) => s.replayFrames);
+
 
   const handleRefresh = useCallback(() => replayFrames(messages), [replayFrames, messages]);
 
