@@ -9,25 +9,25 @@ import styles from './MessageTable.module.css';
 /** Format a millisecond-since-boot uint32 as HH:MM:SS.mmm */
 function formatMsTs(ms) {
   const totalSec = Math.floor(ms / 1_000);
-  const rem      = ms % 1_000;
-  const hh       = Math.floor(totalSec / 3600).toString().padStart(2, '0');
-  const mm       = Math.floor((totalSec % 3600) / 60).toString().padStart(2, '0');
-  const ss       = (totalSec % 60).toString().padStart(2, '0');
-  const frac     = rem.toString().padStart(3, '0');
+  const rem = ms % 1_000;
+  const hh = Math.floor(totalSec / 3600).toString().padStart(2, '0');
+  const mm = Math.floor((totalSec % 3600) / 60).toString().padStart(2, '0');
+  const ss = (totalSec % 60).toString().padStart(2, '0');
+  const frac = rem.toString().padStart(3, '0');
   return `${hh}:${mm}:${ss}.${frac}`;
 }
 
 const SOP_QUAL_COLORS = {
-  'SOP':    '#4fc3f7',
-  "SOP'":   '#81c784',
-  "SOP''":  '#ffb74d',
+  'SOP': '#4fc3f7',
+  "SOP'": '#81c784',
+  "SOP''": '#ffb74d',
 };
 
 const DIR_LABELS = {
   'SRC→SNK': { color: '#ef9a9a', label: 'SRC→SNK', sender: 'SRC', receiver: 'SNK' },
   'SNK→SRC': { color: '#90caf9', label: 'SNK→SRC', sender: 'SNK', receiver: 'SRC' },
-  'DEBUG':   { color: '#ce93d8', label: 'DEBUG'   },
-  'EVENT':   { color: '#fff176', label: 'EVENT'   },
+  'DEBUG': { color: '#ce93d8', label: 'DEBUG' },
+  'EVENT': { color: '#fff176', label: 'EVENT' },
 };
 
 const DATA_ROLE_COLORS = {
@@ -36,11 +36,11 @@ const DATA_ROLE_COLORS = {
 };
 
 const PDO_TYPE_COLORS = {
-  'Fixed':        '#80deea',
-  'Battery':      '#ffcc80',
-  'Variable':     '#b39ddb',
-  'APDO_PPS':     '#a5d6a7',
-  'APDO_AVS':     '#f48fb1',
+  'Fixed': '#80deea',
+  'Battery': '#ffcc80',
+  'Variable': '#b39ddb',
+  'APDO_PPS': '#a5d6a7',
+  'APDO_AVS': '#f48fb1',
   'APDO_SPR_AVS': '#ce93d8',
   'APDO_Unknown': '#aaa',
 };
@@ -48,20 +48,20 @@ const PDO_TYPE_COLORS = {
 /** Fixed-PDO capability flags as short tokens */
 function fixedFlags(pdo) {
   const flags = [];
-  if (pdo.dualRolePower)      flags.push('DRP');
+  if (pdo.dualRolePower) flags.push('DRP');
   if (pdo.isSink) {
-    if (pdo.higherCapability)   flags.push('HigherCap');
+    if (pdo.higherCapability) flags.push('HigherCap');
     if (pdo.unconstrainedPower) flags.push('UCPwr');
-    if (pdo.usbCommsCapable)    flags.push('USB-Comm');
-    if (pdo.dualRoleData)       flags.push('DRD');
-    if (pdo.fastRoleSwap > 0)   flags.push(pdo.fastRoleSwapLabel);
+    if (pdo.usbCommsCapable) flags.push('USB-Comm');
+    if (pdo.dualRoleData) flags.push('DRD');
+    if (pdo.fastRoleSwap > 0) flags.push(pdo.fastRoleSwapLabel);
   } else {
-    if (pdo.usbSuspend)         flags.push('USB-Susp');
+    if (pdo.usbSuspend) flags.push('USB-Susp');
     if (pdo.unconstrainedPower) flags.push('UCPwr');
-    if (pdo.usbCommsCapable)    flags.push('USB-Comm');
-    if (pdo.dualRoleData)       flags.push('DRD');
-    if (pdo.unchunkedExtMsg)    flags.push('UnchukedExt');
-    if (pdo.eprModeCapable)     flags.push('EPR');
+    if (pdo.usbCommsCapable) flags.push('USB-Comm');
+    if (pdo.dualRoleData) flags.push('DRD');
+    if (pdo.unchunkedExtMsg) flags.push('UnchukedExt');
+    if (pdo.eprModeCapable) flags.push('EPR');
   }
   return flags.join('  ');
 }
@@ -78,27 +78,27 @@ function ResolvedPdoRow({ pdo, objPos, isParentSelected }) {
     const fl = fixedFlags(pdo);
     if (fl) details.push(fl);
   } else if (pdo.pdoType === 'Battery') {
-    details.push(`${(pdo.vMinMv/1000).toFixed(2)}–${(pdo.vMaxMv/1000).toFixed(2)} V`);
-    details.push(`${pdo.isSink ? 'Op' : 'Max'}:${(pdo.wMax/1000).toFixed(2)} W`);
+    details.push(`${(pdo.vMinMv / 1000).toFixed(2)}–${(pdo.vMaxMv / 1000).toFixed(2)} V`);
+    details.push(`${pdo.isSink ? 'Op' : 'Max'}:${(pdo.wMax / 1000).toFixed(2)} W`);
   } else if (pdo.pdoType === 'Variable') {
-    details.push(`${(pdo.vMinMv/1000).toFixed(2)}–${(pdo.vMaxMv/1000).toFixed(2)} V`);
-    details.push(`${pdo.isSink ? 'Op' : 'Max'}:${(pdo.iMa/1000).toFixed(2)} A`);
+    details.push(`${(pdo.vMinMv / 1000).toFixed(2)}–${(pdo.vMaxMv / 1000).toFixed(2)} V`);
+    details.push(`${pdo.isSink ? 'Op' : 'Max'}:${(pdo.iMa / 1000).toFixed(2)} A`);
   } else if (pdo.pdoType === 'APDO_PPS') {
-    details.push(`${(pdo.vMinMv/1000).toFixed(2)}–${(pdo.vMaxMv/1000).toFixed(2)} V`);
-    details.push(`Max:${(pdo.iMa/1000).toFixed(2)} A`);
+    details.push(`${(pdo.vMinMv / 1000).toFixed(2)}–${(pdo.vMaxMv / 1000).toFixed(2)} V`);
+    details.push(`Max:${(pdo.iMa / 1000).toFixed(2)} A`);
   } else if (pdo.pdoType === 'APDO_AVS') {
-    details.push(`${(pdo.vMinMv/1000).toFixed(2)}–${(pdo.vMaxMv/1000).toFixed(2)} V`);
+    details.push(`${(pdo.vMinMv / 1000).toFixed(2)}–${(pdo.vMaxMv / 1000).toFixed(2)} V`);
     details.push(`${pdo.pdpW} W`);
   } else if (pdo.pdoType === 'APDO_SPR_AVS') {
-    details.push(`${(pdo.vMinMv/1000).toFixed(2)}–${(pdo.vMaxMv/1000).toFixed(2)} V`);
-    details.push(`${(pdo.iMa_9_15/1000).toFixed(2)} A (9–15V)`);
-    if (pdo.iMa_15_20 > 0) details.push(`${(pdo.iMa_15_20/1000).toFixed(2)} A (15–20V)`);
+    details.push(`${(pdo.vMinMv / 1000).toFixed(2)}–${(pdo.vMaxMv / 1000).toFixed(2)} V`);
+    details.push(`${(pdo.iMa_9_15 / 1000).toFixed(2)} A (9–15V)`);
+    if (pdo.iMa_15_20 > 0) details.push(`${(pdo.iMa_15_20 / 1000).toFixed(2)} A (15–20V)`);
   }
 
   const badgeLabel = pdo.pdoType === 'APDO_PPS' ? 'PPS'
     : pdo.pdoType === 'APDO_AVS' ? 'AVS'
-    : pdo.pdoType === 'APDO_SPR_AVS' ? 'SPR-AVS'
-    : pdo.pdoType;
+      : pdo.pdoType === 'APDO_SPR_AVS' ? 'SPR-AVS'
+        : pdo.pdoType;
 
   return (
     <tr className={`${styles.resolvedPdoRow} ${isParentSelected ? styles.childRowSelected : ''}`}>
@@ -128,56 +128,56 @@ function PdoRow({ child, isParentSelected, expanded, onToggle, indented }) {
     const fl = fixedFlags(child);
     if (fl) details.push(fl);
   } else if (child.pdoType === 'Battery') {
-    details.push(`${(child.vMinMv/1000).toFixed(2)}–${(child.vMaxMv/1000).toFixed(2)} V`);
-    details.push(`${child.isSink ? 'Op' : 'Max'}:${(child.wMax/1000).toFixed(2)} W`);
+    details.push(`${(child.vMinMv / 1000).toFixed(2)}–${(child.vMaxMv / 1000).toFixed(2)} V`);
+    details.push(`${child.isSink ? 'Op' : 'Max'}:${(child.wMax / 1000).toFixed(2)} W`);
   } else if (child.pdoType === 'Variable') {
-    details.push(`${(child.vMinMv/1000).toFixed(2)}–${(child.vMaxMv/1000).toFixed(2)} V`);
-    details.push(`${child.isSink ? 'Op' : 'Max'}:${(child.iMa/1000).toFixed(2)} A`);
+    details.push(`${(child.vMinMv / 1000).toFixed(2)}–${(child.vMaxMv / 1000).toFixed(2)} V`);
+    details.push(`${child.isSink ? 'Op' : 'Max'}:${(child.iMa / 1000).toFixed(2)} A`);
   } else if (child.pdoType === 'APDO_PPS') {
-    details.push(`${(child.vMinMv/1000).toFixed(2)}–${(child.vMaxMv/1000).toFixed(2)} V`);
-    details.push(`${(child.iMa/1000).toFixed(2)} A`);
+    details.push(`${(child.vMinMv / 1000).toFixed(2)}–${(child.vMaxMv / 1000).toFixed(2)} V`);
+    details.push(`${(child.iMa / 1000).toFixed(2)} A`);
   } else if (child.pdoType === 'APDO_AVS') {
-    details.push(`${(child.vMinMv/1000).toFixed(2)}–${(child.vMaxMv/1000).toFixed(2)} V`);
+    details.push(`${(child.vMinMv / 1000).toFixed(2)}–${(child.vMaxMv / 1000).toFixed(2)} V`);
     details.push(`${child.pdpW} W`);
     if (child.peakCurrentLabel) details.push(child.peakCurrentLabel);
   } else if (child.pdoType === 'APDO_SPR_AVS') {
-    details.push(`${(child.vMinMv/1000).toFixed(2)}–${(child.vMaxMv/1000).toFixed(2)} V`);
-    details.push(`${(child.iMa_9_15/1000).toFixed(2)} A (9–15V)`);
-    if (child.iMa_15_20 > 0) details.push(`${(child.iMa_15_20/1000).toFixed(2)} A (15–20V)`);
+    details.push(`${(child.vMinMv / 1000).toFixed(2)}–${(child.vMaxMv / 1000).toFixed(2)} V`);
+    details.push(`${(child.iMa_9_15 / 1000).toFixed(2)} A (9–15V)`);
+    if (child.iMa_15_20 > 0) details.push(`${(child.iMa_15_20 / 1000).toFixed(2)} A (15–20V)`);
     if (child.peakCurrentLabel) details.push(child.peakCurrentLabel);
   } else if (child.rdoType === 'PPS' || child.rdoType === 'AVS') {
     details.push(`PDO#${child.objPos}`);
     details.push(`Out:${(child.opVoltage_mV / 1000).toFixed(3)} V`);
     details.push(`Op:${(child.opCurrent_mA / 1000).toFixed(2)} A`);
     if (child.capMismatch) details.push('CapMismatch');
-    if (child.eprMode)     details.push('EPR');
+    if (child.eprMode) details.push('EPR');
   } else if (child.rdoType === 'Battery') {
     details.push(`PDO#${child.objPos}`);
-    details.push(`Op:${(child.opPower_mW/1000).toFixed(2)} W`);
-    details.push(`${child.giveBack ? 'Min' : 'Max'}:${(child.limPower_mW/1000).toFixed(2)} W`);
-    if (child.giveBack)    details.push('GiveBack');
+    details.push(`Op:${(child.opPower_mW / 1000).toFixed(2)} W`);
+    details.push(`${child.giveBack ? 'Min' : 'Max'}:${(child.limPower_mW / 1000).toFixed(2)} W`);
+    if (child.giveBack) details.push('GiveBack');
     if (child.capMismatch) details.push('CapMismatch');
-    if (child.eprMode)     details.push('EPR');
+    if (child.eprMode) details.push('EPR');
   } else if (child.opCurrent_mA !== undefined) {
     details.push(`PDO#${child.objPos}`);
-    details.push(`Op:${(child.opCurrent_mA/1000).toFixed(2)} A`);
-    details.push(`${child.giveBack ? 'Min' : 'Max'}:${(child.maxCurrent_mA/1000).toFixed(2)} A`);
-    if (child.giveBack)    details.push('GiveBack');
+    details.push(`Op:${(child.opCurrent_mA / 1000).toFixed(2)} A`);
+    details.push(`${child.giveBack ? 'Min' : 'Max'}:${(child.maxCurrent_mA / 1000).toFixed(2)} A`);
+    if (child.giveBack) details.push('GiveBack');
     if (child.capMismatch) details.push('CapMismatch');
-    if (child.eprMode)     details.push('EPR');
+    if (child.eprMode) details.push('EPR');
   }
 
   const EPR_ACTION_COLORS = {
-    'Enter':               '#a5d6a7',
-    'Enter Acknowledged':  '#80deea',
-    'Enter Succeeded':     '#4fc3f7',
-    'Enter Failed':        '#ef9a9a',
-    'Exit':                '#bdbdbd',
+    'Enter': '#a5d6a7',
+    'Enter Acknowledged': '#80deea',
+    'Enter Succeeded': '#4fc3f7',
+    'Enter Failed': '#ef9a9a',
+    'Exit': '#bdbdbd',
   };
-  const isEprMode  = child.action !== undefined;
-  const eprColor   = isEprMode ? (EPR_ACTION_COLORS[child.action] ?? '#bdbdbd') : null;
+  const isEprMode = child.action !== undefined;
+  const eprColor = isEprMode ? (EPR_ACTION_COLORS[child.action] ?? '#bdbdbd') : null;
   const isKeyValue = !isEprMode && child.pdoType === undefined && child.opCurrent_mA === undefined
-                     && child.label !== undefined && child.value !== undefined;
+    && child.label !== undefined && child.value !== undefined;
 
   if (isKeyValue) {
     return (
@@ -195,9 +195,9 @@ function PdoRow({ child, isParentSelected, expanded, onToggle, indented }) {
   // VDM-style generic row: { label, raw } — returned by decodeDataObjects for Vendor_Defined.
   // Detected by absence of type-specific properties (pdoType, rdoType, opCurrent_mA, action, value).
   const isVdoRow = !isEprMode
-                 && child.pdoType === undefined && child.rdoType === undefined
-                 && child.opCurrent_mA === undefined && child.value === undefined
-                 && child.label !== undefined;
+    && child.pdoType === undefined && child.rdoType === undefined
+    && child.opCurrent_mA === undefined && child.value === undefined
+    && child.label !== undefined;
   if (isVdoRow) {
     const isWarning = child.label.startsWith('⚠');
     if (child.section) {
@@ -247,8 +247,8 @@ function PdoRow({ child, isParentSelected, expanded, onToggle, indented }) {
               <span className={styles.pdoTypeBadge} style={{ background: typeColor + '28', borderColor: typeColor, color: typeColor }}>
                 {child.pdoType === 'APDO_PPS' ? 'PPS'
                   : child.pdoType === 'APDO_AVS' ? 'AVS'
-                  : child.pdoType === 'APDO_SPR_AVS' ? 'SPR-AVS'
-                  : child.pdoType}
+                    : child.pdoType === 'APDO_SPR_AVS' ? 'SPR-AVS'
+                      : child.pdoType}
               </span>
             )}
             {child.eprMirror
@@ -299,8 +299,8 @@ const MessageRow = memo(function MessageRow({
     let cur = null;
     for (const c of ch) {
       if (c.section) { cur = { hdr: c, fields: [] }; groups.push(cur); }
-      else if (cur)  { cur.fields.push(c); }
-      else           { groups.push({ hdr: null, fields: [c] }); } // pre-section flat row
+      else if (cur) { cur.fields.push(c); }
+      else { groups.push({ hdr: null, fields: [c] }); } // pre-section flat row
     }
     return groups;
   }, [children, childrenTyped]);
@@ -315,10 +315,10 @@ const MessageRow = memo(function MessageRow({
     });
   }, []);
 
-  const dirInfo  = DIR_LABELS[cpd?.dirName] ?? { color: '#aaa', label: cpd?.dirName ?? '—' };
+  const dirInfo = DIR_LABELS[cpd?.dirName] ?? { color: '#aaa', label: cpd?.dirName ?? '—' };
   const sopColor = SOP_QUAL_COLORS[cpd?.sopQualName] ?? '#aaa';
-  const isDebug  = recordType === 'ASCII_LOG';
-  const isEvent  = recordType === 'EVENT';
+  const isDebug = recordType === 'ASCII_LOG';
+  const isEvent = recordType === 'EVENT';
 
   const handleClick = useCallback((e) => {
     onSelect(e);
@@ -374,19 +374,19 @@ const MessageRow = memo(function MessageRow({
         <td className={isDebug ? styles.ascii : ((msg.pdoSummary || (header?.typeName === 'Vendor_Defined' && children?.[0]?.label)) && !showRaw) ? styles.pdoSummary : styles.raw}>
           {(msg.pdoSummary && !showRaw)
             ? <>
-                <span className={styles.pdoSummaryText}>
-                  {isRequest && resolvedSourcePdo && msg.dataObjects?.[0] != null
-                    ? buildRdoSummary(msg.dataObjects[0], resolvedSourcePdo.pdo.pdoType)
-                    : msg.pdoSummary}
+              <span className={styles.pdoSummaryText}>
+                {isRequest && resolvedSourcePdo && msg.dataObjects?.[0] != null
+                  ? buildRdoSummary(msg.dataObjects[0], resolvedSourcePdo.pdo.pdoType)
+                  : msg.pdoSummary}
+              </span>
+              {resolvedSourcePdo && (
+                <span className={styles.rdoResolvedPdo}>
+                  {' → '}<span style={{ color: PDO_TYPE_COLORS[resolvedSourcePdo.pdo.pdoType] ?? '#aaa' }}>{resolvedSourcePdo.pdo.label}</span>
                 </span>
-                {resolvedSourcePdo && (
-                  <span className={styles.rdoResolvedPdo}>
-                    {' → '}<span style={{ color: PDO_TYPE_COLORS[resolvedSourcePdo.pdo.pdoType] ?? '#aaa' }}>{resolvedSourcePdo.pdo.label}</span>
-                  </span>
-                )}
-                {msg.eprCapable && <span className={styles.eprBadge}>EPR_RDY</span>}
-                {msg.frsCapable && <span className={styles.fsrBadge}>FSR</span>}
-              </>
+              )}
+              {msg.eprCapable && <span className={styles.eprBadge}>EPR_RDY</span>}
+              {msg.frsCapable && <span className={styles.fsrBadge}>FSR</span>}
+            </>
             : (header?.typeName === 'Vendor_Defined' && children?.[0]?.label && !showRaw)
               ? <span className={styles.pdoSummaryText}>{children[0].label}</span>
               : (msg.raw ? `DATA:${msg.raw}` : '')}
@@ -398,24 +398,24 @@ const MessageRow = memo(function MessageRow({
       {expanded && hasChildren && (
         vdmGroups
           ? vdmGroups.map((grp, gi) => (
-              <Fragment key={gi}>
-                {grp.hdr
-                  ? <>
-                      <PdoRow child={grp.hdr} isParentSelected={isSelected}
-                              expanded={openSections.has(gi)} onToggle={() => toggleSection(gi)} />
-                      {openSections.has(gi) && grp.fields.map((f, fi) => (
-                        <PdoRow key={fi} child={f} isParentSelected={isSelected} indented />
-                      ))}
-                    </>
-                  : grp.fields.map((f, fi) => (
-                      <PdoRow key={fi} child={f} isParentSelected={isSelected} />
-                    ))
-                }
-              </Fragment>
-            ))
+            <Fragment key={gi}>
+              {grp.hdr
+                ? <>
+                  <PdoRow child={grp.hdr} isParentSelected={isSelected}
+                    expanded={openSections.has(gi)} onToggle={() => toggleSection(gi)} />
+                  {openSections.has(gi) && grp.fields.map((f, fi) => (
+                    <PdoRow key={fi} child={f} isParentSelected={isSelected} indented />
+                  ))}
+                </>
+                : grp.fields.map((f, fi) => (
+                  <PdoRow key={fi} child={f} isParentSelected={isSelected} />
+                ))
+              }
+            </Fragment>
+          ))
           : (childrenTyped ?? children).map((child, i) => (
-              <PdoRow key={i} child={child} isParentSelected={isSelected} />
-            ))
+            <PdoRow key={i} child={child} isParentSelected={isSelected} />
+          ))
       )}
       {expanded && resolvedSourcePdo && (
         <ResolvedPdoRow pdo={resolvedSourcePdo.pdo} objPos={resolvedSourcePdo.objPos} isParentSelected={isSelected} />
@@ -426,37 +426,37 @@ const MessageRow = memo(function MessageRow({
 
 /** Format one message as a tab-separated line for clipboard copy */
 function formatMsgForCopy(msg) {
-  const ts   = msg.cpd ? formatMsTs(msg.ts) : new Date(msg.ts).toISOString().substring(11, 23);
-  const dir  = msg.cpd?.dirName ?? (msg.recordType === 'EVENT' ? 'EVENT' : 'LOG');
-  const sop  = msg.cpd?.sopQualName ?? '';
-  const rev  = msg.header?.specRevision ?? '';
-  const mid  = msg.header?.msgId ?? '';
+  const ts = msg.cpd ? formatMsTs(msg.ts) : new Date(msg.ts).toISOString().substring(11, 23);
+  const dir = msg.cpd?.dirName ?? (msg.recordType === 'EVENT' ? 'EVENT' : 'LOG');
+  const sop = msg.cpd?.sopQualName ?? '';
+  const rev = msg.header?.specRevision ?? '';
+  const mid = msg.header?.msgId ?? '';
   const type = msg.recordType === 'ASCII_LOG' ? 'ASCII_LOG'
-             : msg.recordType === 'EVENT'     ? (msg.eventName ?? 'EVENT')
-             : (msg.header?.typeName ?? '');
-  const ndo  = msg.header?.numDataObjects ?? '';
+    : msg.recordType === 'EVENT' ? (msg.eventName ?? 'EVENT')
+      : (msg.header?.typeName ?? '');
+  const ndo = msg.header?.numDataObjects ?? '';
   const body = msg.pdoSummary ?? msg.raw ?? '';
-  const raw  = msg.raw ? `DATA:${msg.raw}` : '';
+  const raw = msg.raw ? `DATA:${msg.raw}` : '';
   return [msg.id, ts, dir, sop, rev, mid, type, ndo, body, raw].join('\t');
 }
 
 // Estimated row heights for virtualizer size hints
-const ROW_H        = 28;  // collapsed message row
-const CHILD_ROW_H  = 24;  // PDO / RDO child row
+const ROW_H = 28;  // collapsed message row
+const CHILD_ROW_H = 24;  // PDO / RDO child row
 
 // ── USB PD spec violation guide entries ───────────────────────────────────
 // Each entry: [keyword shown in ⚠ message, spec ref, plain-English explanation]
 const VIOLATION_GUIDE = [
-  ['NDO mismatch',           'Table 6.1',          'The Number of Data Objects field in the message header declares more 4-byte DOs than are actually present in the payload — the frame appears truncated.'],
-  ['PDO#1 type=…b',          '§6.4.1.2.2',         'The first PDO in Source_Capabilities or Sink_Capabilities must always be a Fixed Supply PDO. Other PDO types (Battery, Variable, APDO) are invalid at position 1.'],
-  ['PDO#1 voltage … ≠ 5000', '§6.4.1.2.2',         'PDO#1 is a Fixed Supply but its voltage is not 5000 mV (vSafe5V). The spec requires the first PDO to be the 5 V safe operating voltage.'],
-  ['RDO Object Position = 0','§6.4.2',             'The Object Position field of the Request Data Object (bits 31:28) is zero, which is reserved. Valid positions start at 1 and correspond to a PDO in the source\'s capability list.'],
-  ['APDO subtype 11b',       '§6.4.1.2.5 Table 6.7','APDO subtype 0b11 is reserved. Valid APDO subtypes are: 00b = PPS, 01b = EPR AVS, 10b = SPR AVS.'],
-  ['EPR AVS … vMin … < 15000','§6.4.1.2.5.2 Table 6.14','EPR AVS APDO: the minimum voltage field (bits 15:8, unit 100 mV) encodes a value below 15 V.  The spec requires vMin ≥ 15 V for EPR AVS.'],
-  ['EPR AVS … vMax … > 48000','§6.4.1.2.5.2 Table 6.14','EPR AVS APDO: the maximum voltage field (bits 24:17, unit 100 mV) encodes a value above 48 V.  The spec requires vMax ≤ 48 V for EPR AVS.'],
-  ['vMax … ≤ vMin',          '§6.4.1.2.5.2 Table 6.14','EPR AVS APDO: the maximum voltage is less than or equal to the minimum voltage, making the voltage range degenerate (empty or zero-width).'],
-  ['B16 = 1',                '§6.4.1.2.5.2 Table 6.14','EPR AVS APDO bit 16 is reserved and must be zero.  A value of 1 indicates a non-compliant or corrupted PDO.'],
-  ['B25:20 = 0x',            '§6.4.1.2.5.3 Table 6.16','SPR AVS APDO bits 25:20 are reserved and must all be zero.  Non-zero values indicate a non-compliant or corrupted PDO.'],
+  ['NDO mismatch', 'Table 6.1', 'The Number of Data Objects field in the message header declares more 4-byte DOs than are actually present in the payload — the frame appears truncated.'],
+  ['PDO#1 type=…b', '§6.4.1.2.2', 'The first PDO in Source_Capabilities or Sink_Capabilities must always be a Fixed Supply PDO. Other PDO types (Battery, Variable, APDO) are invalid at position 1.'],
+  ['PDO#1 voltage … ≠ 5000', '§6.4.1.2.2', 'PDO#1 is a Fixed Supply but its voltage is not 5000 mV (vSafe5V). The spec requires the first PDO to be the 5 V safe operating voltage.'],
+  ['RDO Object Position = 0', '§6.4.2', 'The Object Position field of the Request Data Object (bits 31:28) is zero, which is reserved. Valid positions start at 1 and correspond to a PDO in the source\'s capability list.'],
+  ['APDO subtype 11b', '§6.4.1.2.5 Table 6.7', 'APDO subtype 0b11 is reserved. Valid APDO subtypes are: 00b = PPS, 01b = EPR AVS, 10b = SPR AVS.'],
+  ['EPR AVS … vMin … < 15000', '§6.4.1.2.5.2 Table 6.14', 'EPR AVS APDO: the minimum voltage field (bits 15:8, unit 100 mV) encodes a value below 15 V.  The spec requires vMin ≥ 15 V for EPR AVS.'],
+  ['EPR AVS … vMax … > 48000', '§6.4.1.2.5.2 Table 6.14', 'EPR AVS APDO: the maximum voltage field (bits 24:17, unit 100 mV) encodes a value above 48 V.  The spec requires vMax ≤ 48 V for EPR AVS.'],
+  ['vMax … ≤ vMin', '§6.4.1.2.5.2 Table 6.14', 'EPR AVS APDO: the maximum voltage is less than or equal to the minimum voltage, making the voltage range degenerate (empty or zero-width).'],
+  ['B16 = 1', '§6.4.1.2.5.2 Table 6.14', 'EPR AVS APDO bit 16 is reserved and must be zero.  A value of 1 indicates a non-compliant or corrupted PDO.'],
+  ['B25:20 = 0x', '§6.4.1.2.5.3 Table 6.16', 'SPR AVS APDO bits 25:20 are reserved and must all be zero.  Non-zero values indicate a non-compliant or corrupted PDO.'],
 ];
 
 /** Floating guide explaining what each ⚠ violation keyword means. */
@@ -496,26 +496,27 @@ function ViolationGuide({ onClose }) {
 }
 
 export default function MessageTable() {
-  const messages      = useAppStore((s) => s.messages);
+  const messages = useAppStore((s) => s.messages);
   const clearMessages = useAppStore((s) => s.clearMessages);
+  const replayFramesUpTo = useAppStore((s) => s.replayFramesUpTo);
 
   const [newestAtBottom, setNewestAtBottom] = useState(true);
-  const [showRaw,        setShowRaw]        = useState(false);
-  const [userScrolled,   setUserScrolled]   = useState(false);
-  const [selectedIds,    setSelectedIds]    = useState(new Set());
-  const [anchorId,       setAnchorId]       = useState(null);
-  const [contextMenu,    setContextMenu]    = useState(null);
-  const [showGuide,      setShowGuide]      = useState(false);
+  const [showRaw, setShowRaw] = useState(false);
+  const [userScrolled, setUserScrolled] = useState(false);
+  const [selectedIds, setSelectedIds] = useState(new Set());
+  const [anchorId, setAnchorId] = useState(null);
+  const [contextMenu, setContextMenu] = useState(null);
+  const [showGuide, setShowGuide] = useState(false);
   // expanded state lifted here so rows survive virtual-scroll unmount
-  const [expandedIds,    setExpandedIds]    = useState(new Set());
+  const [expandedIds, setExpandedIds] = useState(new Set());
 
   const wrapperRef = useRef(null);
 
   // ── Resizable columns ──────────────────────────────────────────
   // Widths in px; null = auto (last column fills remaining space).
-  const DEFAULT_WIDTHS  = [72, 104, 110, 68, 38, 54, 240, 38, null];
+  const DEFAULT_WIDTHS = [72, 104, 110, 68, 38, 54, 240, 38, null];
   // Minimum drag width per column (last column enforced via table min-width)
-  const MIN_COL_WIDTHS  = [44, 76,   72, 44, 28, 40,  80, 28, 80];
+  const MIN_COL_WIDTHS = [44, 76, 72, 44, 28, 40, 80, 28, 80];
   const [colWidths, setColWidths] = useState(DEFAULT_WIDTHS);
 
   // min-width of the whole table = sum of all per-column minimums (keeps last col visible)
@@ -525,7 +526,7 @@ export default function MessageTable() {
     e.preventDefault();
     const startX = e.clientX;
     const startW = colWidths[colIndex] ?? 80;
-    const minW   = MIN_COL_WIDTHS[colIndex] ?? 30;
+    const minW = MIN_COL_WIDTHS[colIndex] ?? 30;
 
     const onMove = (mv) => {
       const delta = mv.clientX - startX;
@@ -537,10 +538,10 @@ export default function MessageTable() {
     };
     const onUp = () => {
       document.removeEventListener('mousemove', onMove);
-      document.removeEventListener('mouseup',   onUp);
+      document.removeEventListener('mouseup', onUp);
     };
     document.addEventListener('mousemove', onMove);
-    document.addEventListener('mouseup',   onUp);
+    document.addEventListener('mouseup', onUp);
   }, [colWidths]);
 
   const rows = useMemo(
@@ -574,21 +575,21 @@ export default function MessageTable() {
     const msg = rows[i];
     if (!msg) return ROW_H;
     if (!expandedIds.has(msg.id)) return ROW_H;
-    const childCount   = msg.parsedPayload?.length ?? msg.dataObjects?.length ?? 0;
+    const childCount = msg.parsedPayload?.length ?? msg.dataObjects?.length ?? 0;
     const resolvedExtra = reqToSrcPdo.has(msg.id) ? 1 : 0;
     return ROW_H + (childCount + resolvedExtra) * CHILD_ROW_H;
   }, [rows, expandedIds, reqToSrcPdo]);
 
   const virtualizer = useVirtualizer({
-    count:           rows.length,
+    count: rows.length,
     getScrollElement: () => wrapperRef.current,
     estimateSize,
-    overscan:        20,
+    overscan: 20,
   });
 
-  const virtualItems  = virtualizer.getVirtualItems();
-  const totalSize     = virtualizer.getTotalSize();
-  const paddingTop    = virtualItems.length > 0 ? virtualItems[0].start                               : 0;
+  const virtualItems = virtualizer.getVirtualItems();
+  const totalSize = virtualizer.getTotalSize();
+  const paddingTop = virtualItems.length > 0 ? virtualItems[0].start : 0;
   const paddingBottom = virtualItems.length > 0 ? totalSize - virtualItems[virtualItems.length - 1].end : 0;
 
   // Toggle a row's expanded state
@@ -603,7 +604,7 @@ export default function MessageTable() {
   const copySelected = useCallback(() => {
     if (selectedIds.size === 0) return;
     const text = rows.filter((m) => selectedIds.has(m.id)).map(formatMsgForCopy).join('\n');
-    navigator.clipboard.writeText(text).catch(() => {});
+    navigator.clipboard.writeText(text).catch(() => { });
   }, [selectedIds, rows]);
 
   const handleRowClick = useCallback((msg, e) => {
@@ -682,104 +683,117 @@ export default function MessageTable() {
         </span>
       </header>
       {showGuide && <ViolationGuide onClose={() => setShowGuide(false)} />}
-      <div className={styles.tableWrapperOuter}>
-        <div
-          ref={wrapperRef}
-          className={styles.tableWrapper}
-          onScroll={handleScroll}
-        >
-          <table className={styles.table} style={{ width: '100%', minWidth: tableMinWidth }}>
-            <colgroup>
-              {colWidths.map((w, i) => (
-                <col key={i} style={w != null ? { width: w } : {}} />
-              ))}
-            </colgroup>
-            <thead>
-              <tr>
-                <th>#
-                  <span className={styles.resizeHandle} onMouseDown={(e) => startResize(0, e)} />
-                </th>
-                <th
-                  className={styles.thSort}
-                  onClick={() => setNewestAtBottom((v) => !v)}
-                  title={newestAtBottom ? 'Newest at bottom — click to flip' : 'Newest at top — click to flip'}
-                >
-                  Timestamp {newestAtBottom ? '↓' : '↑'}
-                  <span className={styles.resizeHandle} onMouseDown={(e) => { e.stopPropagation(); startResize(1, e); }} />
-                </th>
-                <th>Dir / Role
-                  <span className={styles.resizeHandle} onMouseDown={(e) => startResize(2, e)} />
-                </th>
-                <th>SOP
-                  <span className={styles.resizeHandle} onMouseDown={(e) => startResize(3, e)} />
-                </th>
-                <th>Rev
-                  <span className={styles.resizeHandle} onMouseDown={(e) => startResize(4, e)} />
-                </th>
-                <th>MsgID
-                  <span className={styles.resizeHandle} onMouseDown={(e) => startResize(5, e)} />
-                </th>
-                <th>Type
-                  <span className={styles.resizeHandle} onMouseDown={(e) => startResize(6, e)} />
-                </th>
-                <th title="Number of Data Objects">#DO
-                  <span className={styles.resizeHandle} onMouseDown={(e) => startResize(7, e)} />
-                </th>
-                <th
-                  className={styles.thRaw}
-                  onClick={() => setShowRaw((v) => !v)}
-                  title={showRaw ? 'Showing raw HEX — click for parsed view' : 'Showing parsed — click for raw HEX'}
-                >
-                  {showRaw ? 'HEX ⇄' : 'Parsed ⇄'}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {paddingTop > 0 && <tr><td colSpan={9} style={{ height: paddingTop, padding: 0, border: 'none' }} /></tr>}
-              {virtualItems.map((vItem) => {
-                const msg = rows[vItem.index];
-                return (
-                  <MessageRow
-                    key={msg.id}
-                    msg={msg}
-                    resolvedSourcePdo={reqToSrcPdo.get(msg.id) ?? null}
-                    showRaw={showRaw}
-                    isSelected={selectedIds.has(msg.id)}
-                    expanded={expandedIds.has(msg.id)}
-                    onToggle={() => toggleExpanded(msg.id)}
-                    onSelect={(e) => handleRowClick(msg, e)}
-                    onContextMenu={(e) => handleRowContextMenu(msg, e)}
-                  />
-                );
-              })}
-              {paddingBottom > 0 && <tr><td colSpan={9} style={{ height: paddingBottom, padding: 0, border: 'none' }} /></tr>}
-            </tbody>
-          </table>
-        </div>
-        {userScrolled && newestAtBottom && (
-          <button
-            className={styles.jumpBtn}
-            onClick={scrollToBottom}
-            title="Jump to latest"
-          >
-            ↓ Latest
-          </button>
-        )}
-        {contextMenu && (
-          <div
-            className={styles.contextMenu}
-            style={{ top: contextMenu.y, left: contextMenu.x }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div
-              className={styles.contextMenuItem}
-              onClick={() => { copySelected(); setContextMenu(null); }}
-            >
-              Copy {selectedIds.size} row{selectedIds.size !== 1 ? 's' : ''}
-            </div>
-          </div>
-        )}
+      <div
+        ref={wrapperRef}
+        className={styles.tableWrapper}
+        onScroll={handleScroll}
+      >
+        <table className={styles.table} style={{ width: '100%', minWidth: tableMinWidth }}>
+          <colgroup>
+            {colWidths.map((w, i) => (
+              <col key={i} style={w != null ? { width: w } : {}} />
+            ))}
+          </colgroup>
+          <thead>
+            <tr>
+              <th>#
+                <span className={styles.resizeHandle} onMouseDown={(e) => startResize(0, e)} />
+              </th>
+              <th
+                className={styles.thSort}
+                onClick={() => setNewestAtBottom((v) => !v)}
+                title={newestAtBottom ? 'Newest at bottom — click to flip' : 'Newest at top — click to flip'}
+              >
+                Timestamp {newestAtBottom ? '↓' : '↑'}
+                <span className={styles.resizeHandle} onMouseDown={(e) => { e.stopPropagation(); startResize(1, e); }} />
+              </th>
+              <th>Dir / Role
+                <span className={styles.resizeHandle} onMouseDown={(e) => startResize(2, e)} />
+              </th>
+              <th>SOP
+                <span className={styles.resizeHandle} onMouseDown={(e) => startResize(3, e)} />
+              </th>
+              <th>Rev
+                <span className={styles.resizeHandle} onMouseDown={(e) => startResize(4, e)} />
+              </th>
+              <th>MsgID
+                <span className={styles.resizeHandle} onMouseDown={(e) => startResize(5, e)} />
+              </th>
+              <th>Type
+                <span className={styles.resizeHandle} onMouseDown={(e) => startResize(6, e)} />
+              </th>
+              <th title="Number of Data Objects">#DO
+                <span className={styles.resizeHandle} onMouseDown={(e) => startResize(7, e)} />
+              </th>
+              <th
+                className={styles.thRaw}
+                onClick={() => setShowRaw((v) => !v)}
+                title={showRaw ? 'Showing raw HEX — click for parsed view' : 'Showing parsed — click for raw HEX'}
+              >
+                {showRaw ? 'HEX ⇄' : 'Parsed ⇄'}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {paddingTop > 0 && <tr><td colSpan={9} style={{ height: paddingTop, padding: 0, border: 'none' }} /></tr>}
+            {virtualItems.map((vItem) => {
+              const msg = rows[vItem.index];
+              return (
+                <MessageRow
+                  key={msg.id}
+                  msg={msg}
+                  resolvedSourcePdo={reqToSrcPdo.get(msg.id) ?? null}
+                  showRaw={showRaw}
+                  isSelected={selectedIds.has(msg.id)}
+                  expanded={expandedIds.has(msg.id)}
+                  onToggle={() => toggleExpanded(msg.id)}
+                  onSelect={(e) => handleRowClick(msg, e)}
+                  onContextMenu={(e) => handleRowContextMenu(msg, e)}
+                />
+              );
+            })}
+            {paddingBottom > 0 && <tr><td colSpan={9} style={{ height: paddingBottom, padding: 0, border: 'none' }} /></tr>}
+          </tbody>
+        </table>
       </div>
+      {userScrolled && newestAtBottom && (
+        <button
+          className={styles.jumpBtn}
+          onClick={scrollToBottom}
+          title="Jump to latest"
+        >
+          ↓ Latest
+        </button>
+      )}
+      {contextMenu && (
+        <div
+          className={styles.contextMenu}
+          style={{ top: contextMenu.y, left: contextMenu.x }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div
+            className={styles.contextMenuItem}
+            onClick={() => { copySelected(); setContextMenu(null); }}
+          >
+            Copy {selectedIds.size} row{selectedIds.size !== 1 ? 's' : ''}
+          </div>
+          <div
+            className={styles.contextMenuItem}
+            onClick={() => {
+              // Get the selected message
+              const selectedMsg = rows.find(m => selectedIds.has(m.id));
+              console.log("Selected message:", selectedMsg);
+              if (selectedMsg) {
+                console.log("Calling replayFramesUpTo with messageId:", selectedMsg.id);
+                replayFramesUpTo(messages, selectedMsg.id);
+              }
+              setContextMenu(null);
+            }}
+          >
+            Show state at this point
+          </div>
+        </div>
+      )}
     </section>
   );
 }

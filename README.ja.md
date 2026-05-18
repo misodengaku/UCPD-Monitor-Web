@@ -2,7 +2,7 @@
 
 [English](README.md) | [日本語](README.ja.md)
 
-STM32 UCPD ハードウェアが生成する USB Power Delivery (PD) 通信のトレース情報をリアルタイムで監視・解析する Electron デスクトップアプリケーションです。
+STM32 UCPD ハードウェアが生成する USB Power Delivery (PD) 通信のトレース情報をリアルタイムで監視・解析する Web アプリケーションです。WebSerial を使用してシリアル通信を行います。
 
 STM32CubeMonitor-UCPD が出力する `.cpd` バイナリストリームを読み込み、**USB PD Revision 3.2, Version 1.0 (2023-10)** 仕様に基づいてデコードします。ライブ接続ビュー、完全デコードされたメッセージテーブル、クリップボードへのエクスポート機能を提供します。
 
@@ -37,27 +37,37 @@ STMicroelectronics の **STM32G071B-DISCO** は UCPD SPY モードを内蔵し�
 
 | コンポーネント | 技術 |
 |---|---|
-| デスクトップシェル | Electron 41 |
 | UI フレームワーク | React 19 + Vite 8 |
 | 状態管理 | Zustand |
 | 仮想スクロール | @tanstack/react-virtual |
-| バックエンド | Express 4 + Node.js |
-| リアルタイム通信 | WebSocket (`ws`) |
-| シリアル通信 | `serialport` 13 |
-| パッケージング | electron-builder |
+| シリアル通信 | WebSerial |
+| デプロイ | 静的 HTML/JS/CSS |
 
 ---
 
 ## セットアップ
 
-[Releases](https://github.com/aso/UCPD-Monitor/releases) ページから最新のインストーラをダウンロードして実行してください。
+### 前提条件
 
-| プラットフォーム | ファイル |
-|---|---|
-| Windows | NSIS インストーラ (`.exe`) |
-| Linux | AppImage |
+- WebSerial をサポートする最新の Web ブラウザ（Chrome、Edge など）
+- USB 経由で接続された STM32 UCPD デバイス
 
-インストール完了後、**UCPD-Monitor** を起動してください。
+### アプリケーションの実行（開発用）
+
+1. リポジトリをクローンする
+2. 依存関係をインストールする: `npm install`
+3. 開発サーバーを起動する: `npm run dev`
+4. ブラウザを開き、`http://localhost:5173` にアクセスする
+
+### 静的デプロイ
+
+本番環境へのデプロイでは、アプリケーションを静的サイトとしてビルドできます：
+
+1. 静的アプリケーションをビルドする: `npm run build`
+2. 静的ファイルは `client/dist/` に生成されます
+3. これらのファイルを任意の静的ウェブサーバ（nginx、Apacheなど）にデプロイしてください
+
+詳細なデプロイ手順については [STATIC_DEPLOYMENT.md](STATIC_DEPLOYMENT.md) を参照してください。
 
 ---
 
@@ -66,7 +76,7 @@ STMicroelectronics の **STM32G071B-DISCO** は UCPD SPY モードを内蔵し�
 ### デバイスへの接続
 
 1. STM32 UCPD デバイス(STM32G071B-DISCO)を USB ポートに接続する
-2. タイトルバーのドロップダウンから COM ポートを選択する
+2. タイトルバーのドロップダウンから COM ポートを選択する、または「WebSerial」チェックボックスをオンにする
 3. **Connect** をクリックする → リアルタイムで PD フレームが表示される
 
 ### `.cpd` ファイルのインポート

@@ -8,17 +8,17 @@ import { decodePDO, decodeRDO } from '../parsers/pd_parser';
  */
 
 // ── Topology initial shapes ──────────────────────────────────────
-const INIT_SOURCE  = { connected: false, pdRevision: null, eprActive: false, drd: false, drp: false, altMode: false, discId: null, capabilities: [], snkCaps: [], contract: null, status: null, scdb: null, vdmSeen: false };
+const INIT_SOURCE = { connected: false, pdRevision: null, eprActive: false, drd: false, drp: false, altMode: false, discId: null, capabilities: [], snkCaps: [], contract: null, status: null, scdb: null, vdmSeen: false };
 const INIT_EMARKER = { sop1Detected: false, sop2Detected: false, cableCurrentMa: null, maxVbusV: null, isActive: null, eprCapable: null };
-const INIT_SINK    = { connected: false, pdRevision: null, eprActive: false, drd: false, drp: false, altMode: false, discId: null, capabilities: [], srcCaps: [], lastRequest: null, status: null, skedb: null, vdmSeen: false };
+const INIT_SINK = { connected: false, pdRevision: null, eprActive: false, drd: false, drp: false, altMode: false, discId: null, capabilities: [], srcCaps: [], lastRequest: null, status: null, skedb: null, vdmSeen: false };
 
 export const INITIAL_TOPOLOGY = {
-  source:  { ...INIT_SOURCE },
+  source: { ...INIT_SOURCE },
   eMarker: { ...INIT_EMARKER },
-  sink:    { ...INIT_SINK },
-  cable:   { attached: false },
-  vbusMv:  null,
-  ccPin:   null,
+  sink: { ...INIT_SINK },
+  cable: { attached: false },
+  vbusMv: null,
+  ccPin: null,
   prSwapPending: false,
   eprSrcCapsAccum: [],   // accumulated EPR_Source_Capabilities DOs across chunks
 };
@@ -48,7 +48,7 @@ function applyFrameToTopo(topo, frame) {
     if (vbusMv === undefined && ccPin === undefined) return topo;
     const next = { ...topo };
     if (vbusMv !== undefined) next.vbusMv = vbusMv;
-    if (ccPin   !== undefined) next.ccPin  = ccPin;
+    if (ccPin !== undefined) next.ccPin = ccPin;
     return next;
   }
 
@@ -56,10 +56,10 @@ function applyFrameToTopo(topo, frame) {
   if (recordType !== 'PD_MSG' || !header) return topo;
 
   const typeName = header.typeName;
-  const sopQual  = cpd?.sopQualName ?? 'SOP';
-  const isSOP    = sopQual === 'SOP';
-  const isSOP1   = sopQual === "SOP'";
-  const isSOP2   = sopQual === "SOP''";
+  const sopQual = cpd?.sopQualName ?? 'SOP';
+  const isSOP = sopQual === 'SOP';
+  const isSOP1 = sopQual === "SOP'";
+  const isSOP2 = sopQual === "SOP''";
   const isSrcDir = cpd?.dirName === 'SRC\u2192SNK';
   const isSnkDir = cpd?.dirName === 'SNK\u2192SRC';
 
@@ -73,7 +73,7 @@ function applyFrameToTopo(topo, frame) {
     return {
       ...topo,
       source: { ...topo.source, contract: null },
-      sink:   { ...topo.sink,   lastRequest: null },
+      sink: { ...topo.sink, lastRequest: null },
     };
   }
 
@@ -86,47 +86,47 @@ function applyFrameToTopo(topo, frame) {
 
     } else if (typeName === 'Source_Capabilities' && isSrcDir) {
       const caps = (dataObjects ?? []).map((dw, i) => decodePDO(dw, i));
-      const drd  = !!(caps[0]?.dualRoleData);
-      const drp  = !!(caps[0]?.dualRolePower);
+      const drd = !!(caps[0]?.dualRoleData);
+      const drp = !!(caps[0]?.dualRolePower);
       if (next.prSwapPending) {
         // PR Swap completed: old sink is now the new source
         const prevSrc = { ...next.source };
         const prevSnk = { ...next.sink };
         next.source = {
-          connected:    true,
-          pdRevision:   header.specRevision,
-          eprActive:    false,
+          connected: true,
+          pdRevision: header.specRevision,
+          eprActive: false,
           drd,
           drp,
-          altMode:      false,
-          discId:       prevSnk.discId ?? null,
+          altMode: false,
+          discId: prevSnk.discId ?? null,
           capabilities: caps,
-          snkCaps:      prevSnk.capabilities,
-          contract:     null,
-          status:       null,
-          scdb:         null,
-          vdmSeen:      false,
+          snkCaps: prevSnk.capabilities,
+          contract: null,
+          status: null,
+          scdb: null,
+          vdmSeen: false,
         };
         next.sink = {
-          connected:    true,
-          pdRevision:   prevSrc.pdRevision,
-          eprActive:    false,
-          drd:          prevSrc.drd,
-          drp:          prevSrc.drp,
-          altMode:      prevSrc.altMode ?? false,
-          discId:       prevSrc.discId ?? null,
+          connected: true,
+          pdRevision: prevSrc.pdRevision,
+          eprActive: false,
+          drd: prevSrc.drd,
+          drp: prevSrc.drp,
+          altMode: prevSrc.altMode ?? false,
+          discId: prevSrc.discId ?? null,
           capabilities: prevSrc.snkCaps,
-          srcCaps:      prevSrc.capabilities,
-          lastRequest:  null,
-          status:       null,
-          skedb:        null,
-          vdmSeen:      false,
+          srcCaps: prevSrc.capabilities,
+          lastRequest: null,
+          status: null,
+          skedb: null,
+          vdmSeen: false,
         };
         next.prSwapPending = false;
       } else {
         // Normal: source advertising caps
         next.source = { ...next.source, connected: true, pdRevision: header.specRevision, drd, drp, capabilities: caps };
-        next.sink   = { ...next.sink,   connected: true };
+        next.sink = { ...next.sink, connected: true };
       }
 
     } else if (typeName === 'EPR_Source_Capabilities' && isSrcDir) {
@@ -152,35 +152,35 @@ function applyFrameToTopo(topo, frame) {
           .map((dw, i) => ({ dw, i }))
           .filter(({ dw }) => (dw & 0x0FFFFFFF) !== 0)
           .map(({ dw, i }) => decodePDO(dw, i));
-        const drd  = !!(caps[0]?.dualRoleData);
-        const drp  = !!(caps[0]?.dualRolePower);
+        const drd = !!(caps[0]?.dualRoleData);
+        const drp = !!(caps[0]?.dualRolePower);
         next.source = { ...next.source, connected: true, pdRevision: header.specRevision, drd, drp, capabilities: caps };
-        next.sink   = { ...next.sink,   connected: true };
+        next.sink = { ...next.sink, connected: true };
       }
 
     } else if (typeName === 'Sink_Capabilities') {
       const caps = (dataObjects ?? []).map((dw, i) => decodePDO(dw, i, true));
-      const drd  = !!(caps[0]?.dualRoleData);
-      const drp  = !!(caps[0]?.dualRolePower);
+      const drd = !!(caps[0]?.dualRoleData);
+      const drp = !!(caps[0]?.dualRolePower);
       if (isSrcDir) {
         // Source advertising its own sink capabilities (PR_Swap capable device)
         next.source = { ...next.source, connected: true, snkCaps: caps, drd, drp };
-        next.sink   = { ...next.sink,   connected: true };
+        next.sink = { ...next.sink, connected: true };
       } else {
-        next.sink   = { ...next.sink,   connected: true, pdRevision: header.specRevision, drd, drp, capabilities: caps };
+        next.sink = { ...next.sink, connected: true, pdRevision: header.specRevision, drd, drp, capabilities: caps };
         next.source = { ...next.source, connected: true };
       }
 
     } else if ((typeName === 'Request' || typeName === 'EPR_Request') && isSnkDir) {
       if (dataObjects?.length) {
         // Determine the correct PDO type from the source capabilities before decoding RDO
-        const rawRdo  = dataObjects[0];
-        const objPos  = (rawRdo >>> 28) & 0xF;
-        const srcPdo  = next.source.capabilities[objPos - 1];
+        const rawRdo = dataObjects[0];
+        const objPos = (rawRdo >>> 28) & 0xF;
+        const srcPdo = next.source.capabilities[objPos - 1];
         const srcType = srcPdo?.pdoType ?? (typeName === 'EPR_Request' ? 'APDO_AVS' : 'Fixed');
         const rdo = decodeRDO(rawRdo, srcType);
         // Sink sending a request → both sides present
-        next.sink   = { ...next.sink,   connected: true, lastRequest: rdo };
+        next.sink = { ...next.sink, connected: true, lastRequest: rdo };
         next.source = { ...next.source, connected: true };
       }
 
@@ -190,27 +190,27 @@ function applyFrameToTopo(topo, frame) {
       if (rdo && next.source.capabilities.length) {
         const pdo = next.source.capabilities[rdo.objPos - 1] ?? null;
         const isAdjustable = rdo.rdoType === 'PPS' || rdo.rdoType === 'AVS';
-        const isBattery    = rdo.rdoType === 'Battery';
+        const isBattery = rdo.rdoType === 'Battery';
         next.source = {
           ...next.source,
           contract: {
             pdo,
-            objPos:        rdo.objPos,
-            opVoltage_mV:  isAdjustable ? rdo.opVoltage_mV : null,
-            opCurrent_mA:  isBattery    ? null : rdo.opCurrent_mA,
-            maxCurrent_mA: isBattery    ? null : (isAdjustable ? rdo.opCurrent_mA : rdo.maxCurrent_mA),
-            opPower_mW:    isBattery    ? rdo.opPower_mW  : null,
-            limPower_mW:   isBattery    ? rdo.limPower_mW : null,
-            giveBack:      rdo.giveBack ?? false,
-            capMismatch:   rdo.capMismatch,
-            rdoType:       rdo.rdoType,
+            objPos: rdo.objPos,
+            opVoltage_mV: isAdjustable ? rdo.opVoltage_mV : null,
+            opCurrent_mA: isBattery ? null : rdo.opCurrent_mA,
+            maxCurrent_mA: isBattery ? null : (isAdjustable ? rdo.opCurrent_mA : rdo.maxCurrent_mA),
+            opPower_mW: isBattery ? rdo.opPower_mW : null,
+            limPower_mW: isBattery ? rdo.limPower_mW : null,
+            giveBack: rdo.giveBack ?? false,
+            capMismatch: rdo.capMismatch,
+            rdoType: rdo.rdoType,
           },
         };
       }
 
     } else if (typeName === 'EPR_Mode') {
       next.source = { ...next.source, eprActive: true };
-      next.sink   = { ...next.sink,   eprActive: true };
+      next.sink = { ...next.sink, eprActive: true };
 
     } else if (typeName === 'Status') {
       // Extended Status message — store decoded payload for topology display
@@ -229,24 +229,24 @@ function applyFrameToTopo(topo, frame) {
       // VDM badge: only set for the device that responded with ACK + actual VDOs.
       // Structured VDM ACK (cmdType===1) with VDOs beyond the header = real capability info.
       // NAK/BUSY/REQ and Unstructured VDMs do not qualify.
-      const vdmHdr     = dataObjects[0];
+      const vdmHdr = dataObjects[0];
       const structured = (vdmHdr >>> 15) & 0x1;
-      const cmdType    = (vdmHdr >>> 6) & 0x3;
-      const cmd        = vdmHdr & 0x1F;
-      const hasVdos    = dataObjects.length > 1;
+      const cmdType = (vdmHdr >>> 6) & 0x3;
+      const cmd = vdmHdr & 0x1F;
+      const hasVdos = dataObjects.length > 1;
       if (structured && cmdType === 1 /* ACK */ && hasVdos) {
         // Once set, vdmSeen stays true (only Hard Reset / PR Swap clears it)
         if (isSrcDir && !next.source.vdmSeen)
           next.source = { ...next.source, vdmSeen: true };
         else if (isSnkDir && !next.sink.vdmSeen)
-          next.sink   = { ...next.sink,   vdmSeen: true };
+          next.sink = { ...next.sink, vdmSeen: true };
         // Discover Identity ACK (cmd=0x01): extract altMode, VID, PID, XID, bcdDevice
         if (cmd === 0x01) {
-          const idHdr   = dataObjects[1];
+          const idHdr = dataObjects[1];
           const altMode = !!((idHdr >>> 26) & 0x1);
           // Build discId from ID Header / Cert Stat / Product VDOs
-          const vidNum   = idHdr & 0xFFFF;
-          const vidHex   = `0x${vidNum.toString(16).toUpperCase().padStart(4, '0')}`;
+          const vidNum = idHdr & 0xFFFF;
+          const vidHex = `0x${vidNum.toString(16).toUpperCase().padStart(4, '0')}`;
           const dfpPType = (idHdr >>> 23) & 0x7;  // B25:23 — Table 6.37 Product Type (DFP)
           const ufpPType = (idHdr >>> 27) & 0x7;  // B29:27 — Table 6.37 Product Type (UFP)
           let pid = null, bcdDevice = null, xid = null;
@@ -255,14 +255,14 @@ function applyFrameToTopo(topo, frame) {
           }
           if (dataObjects.length >= 4) {
             const prodVdo = dataObjects[3];
-            pid       = `0x${((prodVdo >>> 16) & 0xFFFF).toString(16).toUpperCase().padStart(4, '0')}`;
+            pid = `0x${((prodVdo >>> 16) & 0xFFFF).toString(16).toUpperCase().padStart(4, '0')}`;
             bcdDevice = `0x${(prodVdo & 0xFFFF).toString(16).toUpperCase().padStart(4, '0')}`;
           }
           const discId = { vid: vidHex, pid, bcdDevice, xid, dfpPType, ufpPType };
           if (isSrcDir)
             next.source = { ...next.source, altMode, discId };
           else if (isSnkDir)
-            next.sink   = { ...next.sink,   altMode, discId };
+            next.sink = { ...next.sink, altMode, discId };
         }
       }
 
@@ -271,7 +271,7 @@ function applyFrameToTopo(topo, frame) {
       const dw = dataObjects[0];
       const revMajor = (dw >>> 28) & 0xF;
       const revMinor = (dw >>> 24) & 0xF;
-      const revStr   = `${revMajor}.${revMinor}`;
+      const revStr = `${revMajor}.${revMinor}`;
       if (isSrcDir) next.source = { ...next.source, pdRevision: revStr };
       else if (isSnkDir) next.sink = { ...next.sink, pdRevision: revStr };
     }
@@ -283,18 +283,18 @@ function applyFrameToTopo(topo, frame) {
 
   // SOP' Discover Identity ACK → decode cable plug VDO for current rating, type, etc.
   if (isSOP1 && typeName === 'Vendor_Defined' && dataObjects?.length >= 5) {
-    const vdmHdr     = dataObjects[0];
+    const vdmHdr = dataObjects[0];
     const structured = (vdmHdr >>> 15) & 0x1;
-    const cmd        = vdmHdr & 0x1F;
-    const cmdType    = (vdmHdr >>> 6) & 0x3;
+    const cmd = vdmHdr & 0x1F;
+    const cmdType = (vdmHdr >>> 6) & 0x3;
     if (structured && cmd === 0x01 && cmdType === 1) {
       // Cable Plug VDO is the 5th DO (index 4)
-      const cableVdo      = dataObjects[4];
-      const curRating     = (cableVdo >>> 5) & 0x3;
+      const cableVdo = dataObjects[4];
+      const curRating = (cableVdo >>> 5) & 0x3;
       const cableCurrentMa = curRating === 1 ? 3000 : curRating === 2 ? 5000 : null;
-      const maxVbusV      = [20, 30, 40, 50][(cableVdo >>> 8) & 0x3] ?? 20;
-      const isActive      = ((cableVdo >>> 10) & 0x3) >= 2;
-      const eprCapable    = !!(cableVdo & (1 << 15));
+      const maxVbusV = [20, 30, 40, 50][(cableVdo >>> 8) & 0x3] ?? 20;
+      const isActive = ((cableVdo >>> 10) & 0x3) >= 2;
+      const eprCapable = !!(cableVdo & (1 << 15));
       next.eMarker = { ...next.eMarker, sop1Detected: true, cableCurrentMa, maxVbusV, isActive, eprCapable };
     }
   }
@@ -352,6 +352,37 @@ export const useAppStore = create((set, get) => ({
     }
     set({ topology: topo });
   },
+  /** Replay frames up to a specific message ID to rebuild topology */
+  replayFramesUpTo: (frames, messageId) => {
+    console.log(`Replaying frames up to message ID: ${messageId}`);
+    let topo = { ...INITIAL_TOPOLOGY };
+    let frameCount = 0;
+    for (const f of frames) {
+      // Stop processing if we've reached the target message
+      if (f.id > messageId) break;
+
+      // File-replay semantics: DETACHED does NOT clear topology (user wants to see last state).
+      // Only ATTACHED resets the device state (a new connection begins fresh).
+      if (f.recordType === 'EVENT' && f.eventName === 'DETACHED') continue;
+      const newTopo = applyFrameToTopo(topo, f);
+      console.log(`Frame ${f.id}: topology changed from`, topo, `to`, newTopo);
+      topo = newTopo;
+      frameCount++;
+    }
+    console.log(`Processed ${frameCount} frames. Setting topology to:`, topo);
+
+    // Check if the new topology is actually different from the current one
+    const currentState = get().topology;
+    console.log("Current topology:", currentState);
+    console.log("New topology:", topo);
+    console.log("Topologies are equal:", JSON.stringify(currentState) === JSON.stringify(topo));
+
+    set({ topology: topo });
+  },
+
+
+  /** Clear messages without resetting topology */
+  clearMessagesOnly: () => set({ messages: [] }),
 
   /** Manual full reset from UI button. */
   resetTopology: () => set({ topology: { ...INITIAL_TOPOLOGY } }),

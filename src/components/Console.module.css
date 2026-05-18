@@ -29,8 +29,28 @@
   cursor: pointer;
   font-size: 10px;
   border-radius: 3px;
+  margin-left: 4px;
 }
-.clearBtn:hover { border-color: #aaa; color: #fff; }
+
+.clearBtn:hover {
+  border-color: #aaa;
+  color: #fff;
+}
+
+.toggleBtn {
+  background: none;
+  border: 1px solid #555;
+  color: #aaa;
+  padding: 1px 6px;
+  cursor: pointer;
+  font-size: 10px;
+  border-radius: 3px;
+}
+
+.toggleBtn:hover {
+  border-color: #aaa;
+  color: #fff;
+}
 
 .log {
   flex: 1;

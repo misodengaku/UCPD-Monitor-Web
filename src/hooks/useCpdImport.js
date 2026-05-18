@@ -2,10 +2,7 @@
 // Copyright (c) 2026 AsO
 import { useCallback } from 'react';
 import { useAppStore } from '../store/appStore';
-
-// Relative path — works in both Vite dev (proxied) and production (same origin).
-const IMPORT_URL      = '/api/import-cpd';
-const IMPORT_PATH_URL = '/api/import-cpd-by-path';
+import { useStaticData } from './useStaticData';
 
 /** True when running inside Electron with preload.js loaded. */
 const isElectron = () => typeof window !== 'undefined' && !!window.electronAPI?.openFileDialog;
@@ -24,13 +21,11 @@ let lastDirHandle = null;
  */
 export function useCpdImport() {
   const { appendLog, setImportStatus } = useAppStore();
+  const { parseCpdFileData } = useStaticData();
 
   /**
-   * Upload one or more .cpd files to the server for processing.
-   * The server feeds the raw bytes through CpdStreamParser, rebuilds the ring
-   * buffer and broadcasts HISTORY — the existing WS handler populates the UI.
-   *
-   * Multiple files are concatenated in order before upload.
+   * Parse one or more .cpd files directly in the browser.
+   * Multiple files are processed sequentially.
    *
    * @param {File[] | FileList} files
    */
@@ -40,61 +35,43 @@ export function useCpdImport() {
       if (fileList.length === 0) return;
 
       const names = fileList.map((f) => f.name).join(', ');
-      appendLog(`[Import] Uploading ${fileList.length} file(s): ${names}`);
+      appendLog(`[Import] Processing ${fileList.length} file(s): ${names}`);
       setImportStatus({ loading: true, filename: names, done: 0, total: fileList.length, warnings: 0 });
 
       try {
-        // Read all files and concatenate their ArrayBuffers
-        const buffers = await Promise.all(fileList.map((f) => f.arrayBuffer()));
-        const totalLen = buffers.reduce((s, b) => s + b.byteLength, 0);
-        const merged = new Uint8Array(totalLen);
-        let offset = 0;
-        for (const b of buffers) {
-          merged.set(new Uint8Array(b), offset);
-          offset += b.byteLength;
+        // Process files sequentially
+        let totalRecords = 0;
+        for (let i = 0; i < fileList.length; i++) {
+          const file = fileList[i];
+          const result = await parseCpdFileData(file);
+          if (result.success) {
+            totalRecords += result.frames;
+            setImportStatus(prev => ({
+              ...prev,
+              done: i + 1,
+              total: fileList.length
+            }));
+          } else {
+            throw new Error(result.error);
+          }
         }
 
-        const res = await fetch(IMPORT_URL, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/octet-stream',
-            'X-Filename': names,
-          },
-          body: merged,
-        });
-        if (!res.ok) throw new Error(`Server returned ${res.status}`);
-        const { records } = await res.json();
-
         setImportStatus({ loading: false, done: fileList.length, warnings: 0 });
-        appendLog(`[Import] Done — ${records} record(s) from ${fileList.length} file(s)`);
+        appendLog(`[Import] Done — ${totalRecords} record(s) from ${fileList.length} file(s)`);
       } catch (err) {
         appendLog(`[Import] Error: ${err.message}`);
         setImportStatus({ loading: false });
       }
     },
-    [appendLog, setImportStatus]
+    [appendLog, setImportStatus, parseCpdFileData]
   );
 
   /** Shared Electron path-based import helper. */
   const _importByPaths = useCallback(async (filePaths) => {
-    if (!filePaths || filePaths.length === 0) return;
-    const names = filePaths.map((p) => p.split(/[\\/]/).pop()).join(', ');
-    appendLog(`[Import] Reading ${filePaths.length} file(s): ${names}`);
-    setImportStatus({ loading: true, filename: names, done: 0, total: filePaths.length, warnings: 0 });
-    try {
-      const res = await fetch(IMPORT_PATH_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ paths: filePaths }),
-      });
-      if (!res.ok) throw new Error(`Server returned ${res.status}`);
-      const { records } = await res.json();
-      setImportStatus({ loading: false, done: filePaths.length, warnings: 0 });
-      appendLog(`[Import] Done — ${records} record(s) from ${filePaths.length} file(s)`);
-    } catch (err) {
-      appendLog(`[Import] Error: ${err.message}`);
-      setImportStatus({ loading: false });
-    }
+    // In static version, we can't access file paths directly
+    // This functionality is not available in pure browser environment
+    appendLog(`[Import] Path-based import not available in static version`);
+    setImportStatus({ loading: false });
   }, [appendLog, setImportStatus]);
 
   /**
